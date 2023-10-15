@@ -1,0 +1,35 @@
+@use './colors';
+
+
+
+body {
+   font-size: clamp(1.6rem, calc(1rem + (20 - 16) * ((100vw - 350px) / (1920 - 350))), 2rem);
+   min-height: 100vh;
+   padding: 1em clamp(2.5rem, calc(2.5rem + 3vw), calc(100vw - 700px));
+   background-color: var(--body-background);
+}
+
+/*button, input[type=text] {
+   outline: none;
+   border: none;
+   background: transparent;
+   display: block;
+   font-size: 1em;
+}*/
+
+button {
+   line-height: 0;
+   :hover {
+      cursor: pointer;
+   }
+}
+
+main > form, ul {
+   border-radius: 8px;
+   box-shadow: 0px 5px 30px -5px rgba(0, 0, 0, 0.15);
+   margin-bottom: 1em;
+}
+
+main > form, ul > li {
+   padding: 1em 1.4em;
+}

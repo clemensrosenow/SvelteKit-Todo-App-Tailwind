@@ -1,0 +1,50 @@
+:root {
+  --bright-blue: hsl(220, 98%, 61%);
+  --input-background: linear-gradient(to bottom right,hsl(192, 100%, 67%), hsl(280, 87%, 65%));
+  --list-background: hsl(0, 0%, 98%);
+  --body-background: hsl(236, 33%, 92%);
+  --main-text: hsl(235, 19%, 35%);
+  --faded-text: hsl(236, 9%, 61%);
+  --faded-text-hover: var(--main-text);
+  --low-contrast: hsl(233, 11%, 84%);
+}
+
+.darkMode {
+  --list-background: hsl(235, 24%, 19%);
+  --body-background: hsl(235, 21%, 11%);
+  --main-text: hsl(234, 39%, 85%);
+  --faded-text: hsl(234, 11%, 52%);
+  --faded-text-hover: hsl(236, 33%, 92%);
+  --low-contrast: hsl(233, 14%, 35%);
+}
+
+body {
+  font-size: clamp(1.6rem, 1rem + 4 * (100vw - 350px) / 1570, 2rem);
+  min-height: 100vh;
+  padding: 1em clamp(2.5rem, 2.5rem + 3vw, 100vw - 700px);
+  background-color: var(--body-background);
+}
+
+/*button, input[type=text] {
+   outline: none;
+   border: none;
+   background: transparent;
+   display: block;
+   font-size: 1em;
+}*/
+button {
+  line-height: 0;
+}
+button :hover {
+  cursor: pointer;
+}
+
+main > form, ul {
+  border-radius: 8px;
+  box-shadow: 0px 5px 30px -5px rgba(0, 0, 0, 0.15);
+  margin-bottom: 1em;
+}
+
+main > form, ul > li {
+  padding: 1em 1.4em;
+}/*# sourceMappingURL=style.css.map */
