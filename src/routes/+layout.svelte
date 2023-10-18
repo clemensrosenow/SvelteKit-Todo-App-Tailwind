@@ -1,28 +1,16 @@
 <script lang="ts">
-	import '../app.css';
-   import { onMount } from 'svelte';
-	//import { darkMode } from '../stores';
 	import { blur } from 'svelte/transition';
+	import '../app.css';
+	import { darkMode } from '../stores';
+   //Später ersetzen, file extension ".svelte"bisher nicht erkannt
+   //import { LightSwitch } from '@skeletonlabs/skeleton';
 
-   
-	onMount(() => {
-		if (
-			localStorage.darkMode === 'true' ||
-			window.matchMedia('(prefers-color-scheme: dark)').matches
-		) {
-			toggleDarkMode();
-		}
-	});
-   
-   
 	function toggleDarkMode() {
-      return darkMode = !darkMode
-		/*$darkMode = !$darkMode;
-		document.body.classList.toggle('darkMode');
-		localStorage.darkMode = $darkMode;*/
+		$darkMode = !$darkMode;
+		document.documentElement.classList.toggle('dark');
+		localStorage.theme = $darkMode ? 'dark' : 'light';
 	}
-    //Tailwind Dark Mode -> https://tailwindcss.com/docs/dark-mode
-   let darkMode = true
+	$: console.log($darkMode);
 </script>
 
 <svelte:head>
@@ -33,38 +21,67 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 	<link
-		href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap"
+		href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap"
 		rel="stylesheet"
 	/>
+
+	<!-- Initializes theme while avoiding FOUC -->
+	<script>
+		if (
+			localStorage.theme === 'dark' ||
+			(!'theme' in localStorage && window.matchMedia('(prefers-color-scheme: dark)').matches)
+		) {
+			document.documentElement.classList.add('dark');
+			$darkMode = true;
+		} else {
+			document.documentElement.classList.remove('dark');
+		}
+	</script>
 </svelte:head>
 
-<!-- Dark Mode wieder $ hinzufügen-->
-<header class="flex justify-between my-12">
-	{#key darkMode}
-     
+<header class="flex justify-between py-7 mt-4">
+	{#key $darkMode}
 		<picture>
 			<source
 				media="(min-width: 768px)"
-				srcset={`images/bg-desktop-${darkMode ? 'dark' : 'light'}.jpg`}
+				srcset={`images/bg-desktop-${$darkMode ? 'dark' : 'light'}.jpg`}
 			/>
 			<img
-				src={`images/bg-mobile-${darkMode ? 'dark' : 'light'}.jpg`}
+				src={`images/bg-mobile-${$darkMode ? 'dark' : 'light'}.jpg`}
 				alt="Background"
-				transition:blur={{duration: 250}}
-            class="absolute w-full inset-0 opacity-20"
+				transition:blur={{ duration: 250 }}
+				class="absolute w-full inset-0 -z-10"
 			/>
 		</picture>
-     
 	{/key}
 
-	<h1 class="uppercase tracking-widest text-3xl font-bold mr-auto text-fadedText-">Todo</h1>
+	<h1 class="uppercase tracking-[8px] text-3xl font-semibold mr-auto text-neutral-50">Todo</h1>
 	<button on:click={toggleDarkMode}>
 		<img
-			src={`images/icon-${darkMode ? 'sun' : 'moon'}.svg`}
-			alt={`Activate ${darkMode ? 'light' : 'dark'} mode`}
+			src={`images/icon-${$darkMode ? 'sun' : 'moon'}.svg`}
+			alt={`Activate ${$darkMode ? 'light' : 'dark'} mode`}
 		/>
 	</button>
 </header>
+
 <main class="transition-colors">
 	<slot />
 </main>
+
+<style lang="postcss">
+	header,
+	main {
+		@apply max-w-4xl mx-auto px-6;
+	}
+
+	:global(html) {
+		background-color: theme(colors.bodyBackground.light);
+	}
+   :global(body) {
+      scroll-behavior: smooth;
+   }
+	/* Noch anpassen theme colors */
+	:global(.secondary) {
+		fill: theme(colors.lowContrast.light);
+	}
+</style>

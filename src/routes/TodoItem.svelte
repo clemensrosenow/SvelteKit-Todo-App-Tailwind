@@ -1,62 +1,40 @@
-<!--
 <script lang="ts">
 	import { todos } from '../stores';
+	//Noch ändern, sodass keine default values nötig
 	export let task = '';
 	export let completed = false;
-	export let id = Date.now();
+	export let id = Date.now().toString();
 </script>
 
-<button
-	on:click={() => {
-		completed = !completed;
-		todos.toggle(id);
-	}}
-	class="check"
-	class:done={completed}>✔</button
->
-<label>
-	<input
-		type="checkbox"
-		name="TodoToggle"
-		bind:checked={completed}
-		on:change={() => todos.toggle(id)}
-	/>
-	{task}</label
->
+<!-- Häkchen nicht sichtbar wegen BG-->
+<input
+	type="checkbox"
+	name="TodoToggle"
+	{id}
+	bind:checked={completed}
+	on:change={() => todos.toggle(id)}
+	class="p-3 rounded-full border-lowContrast-light checked:text-brightBlue hover:cursor-pointer hover:border-brightBlue focus:outline-brightBlue"
+/>
+<label for={id} class="flex-1 hover:cursor-grab">{task}</label>
+
 <button
 	on:click={() => {
 		todos.remove(id);
 	}}
-	class="remove"
+	class="ml-auto mr-2"
 >
-	<img src="images/icon-cross.svg" alt="Remove todo" />
+	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-close w-9"
+		><path
+			class="secondary"
+			fill-rule="evenodd"
+			d="M15.78 14.36a1 1 0 0 1-1.42 1.42l-2.82-2.83-2.83 2.83a1 1 0 1 1-1.42-1.42l2.83-2.82L7.3 8.7a1 1 0 0 1 1.42-1.42l2.83 2.83 2.82-2.83a1 1 0 0 1 1.42 1.42l-2.83 2.83 2.83 2.82z"
+		/></svg
+	>
 </button>
 
-<style>
-	label:has(input:checked) {
-		text-decoration-line: line-through;
-		color: var(--low-contrast);
-	}
-
-	input {
-		display: none;
-	}
-
-	button.check {
-		background: var(--input-background);
-		aspect-ratio: 1;
-		padding: 0.5em;
-		line-height: 0;
-		border-radius: 50%;
-		color: white;
-		outline: 1px solid red;
-	}
-	button.check.done {
-		outline: 1px solid green;
-	}
-
-	button.remove {
-		margin-left: auto;
+<style lang="postcss">
+	input:checked + label {
+		color: theme(colors.fadedText.light);
+		text-decoration: line-through;
 	}
 </style>
--->

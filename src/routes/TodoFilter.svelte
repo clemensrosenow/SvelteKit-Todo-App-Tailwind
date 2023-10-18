@@ -1,41 +1,20 @@
-<!--
+
 <script lang="ts">
 	import { filterOptions, filterCriterion } from '../stores';
 </script>
 
-<form>
+<form class="flex justify-center p-3 gap-7 bg-listBackground-light">
 	{#each $filterOptions as filter}
-		<label>
-			<input type="radio" name="filter" value={filter} bind:group={$filterCriterion} />
+		<label class="font-semibold text-fadedText-light hover:cursor-pointer hover:text-fadedText-hover-light">
+			<input type="radio" name="filter" value={filter} bind:group={$filterCriterion} class="hidden"/>
 			{filter}
 		</label>
 	{/each}
 </form>
 
-<style>
-	form {
-		display: flex;
-		justify-content: center;
-		gap: 1.4em;
-		background-color: var(--list-background);
-	}
-	label {
-		color: var(--faded-text);
-		font-weight: 700;
-	}
-   label:hover {
-      cursor: pointer;
-      color: var(--faded-text-hover);
-   }
-
+<style lang="postcss">
+	
 	label:has(input[type='radio']:checked) {
-		color: var(--bright-blue);
-	}
-   label:has(input[type='radio']:checked):hover {
-      cursor: default;
-   }
-	form input {
-		display: none;
+		@apply text-brightBlue cursor-default;
 	}
 </style>
--->

@@ -1,9 +1,20 @@
+//ts-check
 /** @type {import('tailwindcss').Config} */
+
+import { join } from 'path';
+import { skeleton } from '@skeletonlabs/tw-plugin';
+
 export default {
-   content: ['./src/**/*.{html,js,svelte,ts}'],
+   content: [
+      './src/**/*.{html,js,svelte,ts}',
+      join(require.resolve(
+         '@skeletonlabs/skeleton'),
+         '../**/*.{html,js,svelte,ts}'
+      )],
+   darkMode: 'class',
    theme: {
       fontFamily: {
-         'sans': ['Josefin Sans', 'ui-sans-serif', 'sans-serif']
+         'sans': ['Jost', 'ui-sans-serif', 'sans-serif']
       },
       extend: {
          colors: {
@@ -32,10 +43,16 @@ export default {
                dark: 'hsl(235, 21%, 11%)',
             },
             brightBlue: 'hsl(220, 98%, 61%)',
-            inputBackground: 'linear-gradient(to bottom right, hsl(192, 100%, 67%), hsl(280, 87%, 65%)',
+            /*
+            gradientBlue: 'hsl(192, 100%, 67%)',
+            gradientPurple: 'hsl(280, 87%, 65%)',
+            checkboxColor: 'hsl(236, 94%, 66%)'*/
          },
       },
    },
-   plugins: [],
+   plugins: [
+      require('@tailwindcss/forms'),
+      skeleton
+   ],
 }
 
