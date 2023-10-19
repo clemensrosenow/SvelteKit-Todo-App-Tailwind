@@ -2,7 +2,7 @@ import { writable, derived, readable } from 'svelte/store';
 
 export interface Todo {
 	task: string;
-   id: number;
+   id: string;
 	completed: boolean;
 }
 
@@ -17,17 +17,17 @@ function createTodoStore() {
 			const todo = {
 				task,
 				completed: false,
-				id: Date.now()
+				id: Date.now().toString()
 			};
 			update(($todos) => [todo, ...$todos]);
 		},
 		clearCompleted: () => {
 			update(($todos) => $todos.filter((todo: Todo) => !todo.completed));
 		},
-		remove: (todoId: number) => {
+		remove: (todoId: string) => {
 			update(($todos) => $todos.filter((todo: Todo) => todo.id !== todoId));
 		},
-		toggle: (todoId: number) => {
+		toggle: (todoId: string) => {
 			update(($todos) =>
 				$todos.map((todo: Todo) => {
 					if (todo.id === todoId) {

@@ -29,17 +29,18 @@
 		todos.add(todoText);
 		todoText = '';
 	}}
-	class="flex justify-between pl-1 py-1 gap-2 bg-listBackground-light"
+	class="flex justify-between gap-2 py-1 pl-1 bg-listBackground-light"
 >
 	<!-- svelte-ignore a11y-autofocus -->
 	<input
 		type="text"
 		placeholder="Create a new todo..."
 		autofocus={true}
+      required={true}
 		bind:value={todoText}
-		class="form-input text-mainText-light flex-1 border-0 bg-transparent rounded-md px-4 py-3 caret-brightBlue placeholder-fadedText-light"
+		class="flex-1 px-4 py-2 bg-transparent border-0 rounded-sm form-input text-mainText-light caret-brightBlue placeholder-fadedText-light"
 	/>
-	<button type="submit" class="text-mainText-light pr-2 " 
+	<button type="submit" class="pr-2 text-mainText-light " 
 		><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-add w-9"
 			><path
 				class="secondary"

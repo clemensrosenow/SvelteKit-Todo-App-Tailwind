@@ -33,7 +33,8 @@
    }
 
    //Handle drag & drop functionality
-	function handleDragStart(event, id) {
+	function handleDragStart(event:DragEvent, id:string) {
+      if (event.dataTransfer === null) return;
 		event.dataTransfer.setData('text/plain', id);
 		console.log('started dragging' + id);
 	}
@@ -41,17 +42,18 @@
 		console.log('dragover');
 	}
 
-	function handleDrop(event) {
+	function handleDrop(event:DragEvent) {
+      if (event.dataTransfer === null) return;
 		const draggedId = event.dataTransfer.getData('text/plain');
 		console.log(draggedId);
-
-		const targetTodo = event.target.closest('li');
+      
+		/*const targetTodo = event.target.closest('li');
 		if (!targetTodo) return;
 
 		console.log(targetTodo);
 
 		const targetId = targetTodo.getAttribute('data-id');
-		console.log(targetId);
+		console.log(targetId);*/
 	}
 
 	// Drag Start Event Listeners mit use:action https://stackoverflow.com/questions/60934557/how-to-bind-events-dynamically-in-svelte

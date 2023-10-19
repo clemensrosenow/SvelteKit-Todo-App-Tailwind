@@ -18,7 +18,7 @@
 <TodoInput />
 <TodoList />
 <TodoFilter />
-<p class="text-center text-fadedText-light mt-12">Drag and drop to reorder list</p>
+<p class="mt-12 text-center text-fadedText-light">Drag and drop to reorder list.<br>Swipe left to delete todo.</p>
 
 <style lang="postcss">
 	:global(main > *:not(p)) {

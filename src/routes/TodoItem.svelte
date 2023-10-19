@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { todos } from '../stores';
 	//Noch ändern, sodass keine default values nötig
-	export let task = '';
-	export let completed = false;
-	export let id = Date.now().toString();
+	export let task:string;
+	export let completed:boolean;
+	export let id:string;
 </script>
 
 <!-- Häkchen nicht sichtbar wegen BG-->

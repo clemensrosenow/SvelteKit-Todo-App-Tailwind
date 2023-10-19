@@ -2,8 +2,7 @@
 	import { blur } from 'svelte/transition';
 	import '../app.css';
 	import { darkMode } from '../stores';
-   //Später ersetzen, file extension ".svelte"bisher nicht erkannt
-   //import { LightSwitch } from '@skeletonlabs/skeleton';
+   import { LightSwitch } from '@skeletonlabs/skeleton';
 
 	function toggleDarkMode() {
 		$darkMode = !$darkMode;
@@ -14,9 +13,6 @@
 </script>
 
 <svelte:head>
-	<!--Global CSS-->
-	<link rel="stylesheet" href="styles/style.css" />
-
 	<!--Google Fonts-->
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
@@ -39,29 +35,24 @@
 	</script>
 </svelte:head>
 
-<header class="flex justify-between py-7 mt-4">
+<header class="flex items-center justify-between mt-3 py-7">
 	{#key $darkMode}
 		<picture>
 			<source
-				media="(min-width: 768px)"
+				media="(min-width: 600px)"
 				srcset={`images/bg-desktop-${$darkMode ? 'dark' : 'light'}.jpg`}
 			/>
 			<img
 				src={`images/bg-mobile-${$darkMode ? 'dark' : 'light'}.jpg`}
 				alt="Background"
 				transition:blur={{ duration: 250 }}
-				class="absolute w-full inset-0 -z-10"
+				class="absolute inset-0 w-full -z-10 min-h-[13rem] object-cover"
 			/>
 		</picture>
 	{/key}
 
-	<h1 class="uppercase tracking-[8px] text-3xl font-semibold mr-auto text-neutral-50">Todo</h1>
-	<button on:click={toggleDarkMode}>
-		<img
-			src={`images/icon-${$darkMode ? 'sun' : 'moon'}.svg`}
-			alt={`Activate ${$darkMode ? 'light' : 'dark'} mode`}
-		/>
-	</button>
+	<h1 class="uppercase tracking-[8px] text-3xl font-semibold mr-auto text-bodyBackground-light">Todo</h1>
+   <LightSwitch on:click={toggleDarkMode} title="Toggle theme" bgLight='bg-listBackground-light' bgDark='bg-listBackground-dark' fillLight="fill-listBackground-light" fillDark='fill-listBackground-dark' width='w-12' height='h-6' rounded="rounded-full"/>
 </header>
 
 <main class="transition-colors">
@@ -84,4 +75,5 @@
 	:global(.secondary) {
 		fill: theme(colors.lowContrast.light);
 	}
+   
 </style>
