@@ -1,44 +1,58 @@
 <script lang="ts">
-	import { filterCriterion, filterOptions, todos } from '../stores';
-	let todoText = '';
+   import { enhance } from "$app/forms";
+   import { filterCriterion, filterOptions, todos } from "../stores";
+		let todoText = '';
 
-	/*async function addTodo() {
+   
+   async function addTodo() {
       try {
-         const todo = {
-            task: todoText, 
+         const response = await fetch('/api?/todos', {
+         method: 'POST',
+         body: JSON.stringify({
+            task: todoText,
             completed: false
-         }
-         await fetch('/', {
-            method: 'POST',
-            body: JSON.stringify(todo)
-         })
-      } catch (error) {
-         console.error(error)
-      } finally {
-         todoText = ''
+         }),
+         headers: {
+            'Content-Type': 'application/json',
+         },
+      }) 
+      const result = await response.text()
+      // Toast Message Info with modal text
       }
-   }*/
-</script>
-
-<form
-	on:submit|preventDefault={() => {
-      // Added todo uncompleted by default -> view switch when from "completed" to "all" to ensure visibility
-      if ($filterCriterion === $filterOptions[2]) {
+      catch(error) {
+         console.error("Error when creating todo")
+         //Add Modal for error
+      }
+      finally {
+         //Should run before database request, but still be responsive
+         
+         // Added todo uncompleted by default -> view switch when from "completed" to "all" to ensure visibility
+         if ($filterCriterion === $filterOptions[2]) {
          $filterCriterion = $filterOptions[0];
       }
 		todos.add(todoText);
-		todoText = '';
-	}}
+      
+         // Reset input
+         todoText = ''
+      }
+         
+   }
+</script>
+
+<form
+   method="post" action="?/create" use:enhance
 	class="flex justify-between gap-2 py-1 pl-1 bg-listBackground-light"
 >
 	<!-- svelte-ignore a11y-autofocus -->
 	<input
 		type="text"
+      name="todoText"
 		placeholder="Create a new todo..."
-		autofocus={true}
-      required={true}
+		autofocus
+      autocomplete="off"
+      required
 		bind:value={todoText}
-		class="flex-1 px-4 py-2 bg-transparent border-0 rounded-sm form-input text-mainText-light caret-brightBlue placeholder-fadedText-light"
+		class="flex-1 px-4 py-3 bg-transparent border-0 rounded-sm form-input text-mainText-light caret-brightBlue placeholder-fadedText-light"
 	/>
 	<button type="submit" class="pr-2 text-mainText-light " 
 		><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-add w-9"

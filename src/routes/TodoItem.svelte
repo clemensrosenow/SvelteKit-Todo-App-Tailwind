@@ -3,23 +3,23 @@
 	//Noch ändern, sodass keine default values nötig
 	export let task:string;
 	export let completed:boolean;
-	export let id:string;
+	export let _id:string;
 </script>
 
 <!-- Häkchen nicht sichtbar wegen BG-->
 <input
 	type="checkbox"
 	name="TodoToggle"
-	{id}
+	id={_id}
 	bind:checked={completed}
-	on:change={() => todos.toggle(id)}
+	on:change={() => todos.toggle(_id)}
 	class="p-3 rounded-full border-lowContrast-light checked:text-brightBlue hover:cursor-pointer hover:border-brightBlue focus:outline-brightBlue"
 />
-<label for={id} class="flex-1 hover:cursor-grab">{task}</label>
+<label for={_id} class="flex-1 hover:cursor-grab">{task}</label>
 
 <button
 	on:click={() => {
-		todos.remove(id);
+		todos.remove(_id);
 	}}
 	class="ml-auto mr-2"
 >

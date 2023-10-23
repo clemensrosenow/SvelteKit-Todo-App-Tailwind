@@ -3,6 +3,7 @@
 	import '../app.css';
 	import { darkMode } from '../stores';
    import { LightSwitch } from '@skeletonlabs/skeleton';
+	import TodoFilter from './TodoFilter.svelte';
 
 	function toggleDarkMode() {
 		$darkMode = !$darkMode;
@@ -59,17 +60,23 @@
 	<slot />
 </main>
 
+<footer>
+   <TodoFilter />
+</footer>
+
 <style lang="postcss">
-	header,
-	main {
+	header, main, footer {
 		@apply max-w-4xl mx-auto px-6;
 	}
 
 	:global(html) {
-		background-color: theme(colors.bodyBackground.light);
+		background-color: theme(colors.bodyBackground.dark);
 	}
    :global(body) {
       scroll-behavior: smooth;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto; 
    }
 	/* Noch anpassen theme colors */
 	:global(.secondary) {

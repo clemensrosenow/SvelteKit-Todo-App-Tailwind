@@ -1,5 +1,5 @@
-/*import { startMongoDB } from "$lib/mongodb-client";
+import { startMongoDB } from "$db/mongodb";
 
 startMongoDB().then(() => {
    console.log("Mongo started")
-}).catch(error => console.error(error))*/
+}).catch((error:Error) => console.error(error))
