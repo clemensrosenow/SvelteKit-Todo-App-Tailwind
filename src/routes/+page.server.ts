@@ -1,44 +1,58 @@
-import { todos } from "$db/todos";
-import type { PageServerLoad } from "./$types";
-
+import { todos } from '$db/todos';
+import { ObjectId } from 'mongodb';
+import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async function () {
-   const data = await todos.find({}).toArray()
-   //console.log(data)
+	//Load all todos with the newest first
+	const data = await todos.find().sort({ _id: -1 }).toArray();
 
-   
-   // Convert ObjectId to a string for serialization expected from SvelteKit
-   //Überlegen, ob Conversion wirklich nötig ist, oder nur für die Darstellung
-   const todosData = data.map(todo => {
-      todo._id = todo._id.toString(); 
-      return todo;
-   });
+	const todosData = data.map((todo) => {
+		//@ts-ignore
+		todo._id = todo._id.toString(); // Convert ObjectId to a string for serialization expected from SvelteKit
+		return todo;
+	});
 
-   return {
-      todos: todosData
-   }
-}
+	return {
+		todos: todosData
+	};
+};
 
 export const actions = {
-   create: async ({ request }) => {
-      const data = await request.formData();
-      const task = data.get('todoText');
+	clearCompleted: async () => {
+		todos.deleteMany({ completed: true });
+	},
+	create: async ({ request }) => {
+		const data = await request.formData();
+		const task = data.get('todoText');
 
-      /*if (task === "") {
-         throw new Error("Task cannot be empty.");
-      }
+		if (task === '') {
+			throw new Error('Task cannot be empty.');
+		}
 
-      const existingTodo = await todos.findOne({ task });
-      
-      //Better Error Handling
-      if (existingTodo) {
-         throw new Error("Task already exists.");
-      }*/
-      
-      todos.insertOne({
-         task,
-         completed: false
-      });
-   }
-      
-}
+		//Handle task to be unique with MongoDB
+		// Server currently crashes when creating a duplicate task
+
+		todos.insertOne({
+			task,
+			completed: false
+		});
+	},
+	delete: async ({ request }) => {
+		const data = await request.formData();
+		const _id = data.get('_id');
+		if (!_id) {
+			throw new Error('No ID provided.');
+		}
+		todos.deleteOne({ _id: new ObjectId(_id.toString()) });
+	},
+	toggle: async ({ request }) => {
+		const data = await request.formData();
+		const _id = data.get('_id');
+		if (!_id) {
+			throw new Error('No ID provided.');
+		}
+		todos.updateOne({ _id: new ObjectId(_id.toString()) }, [
+			{ $set: { completed: { $not: '$completed' } } }
+		]);
+	}
+};

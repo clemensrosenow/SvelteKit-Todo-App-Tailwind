@@ -1,40 +1,57 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { todos } from '../stores';
-	//Noch ändern, sodass keine default values nötig
-	export let task:string;
-	export let completed:boolean;
-	export let _id:string;
+
+	export let task: string;
+	export let completed: boolean;
+	export let _id: string;
+
+	let todoForm: HTMLFormElement;
 </script>
 
-<!-- Häkchen nicht sichtbar wegen BG-->
-<input
-	type="checkbox"
-	name="TodoToggle"
-	id={_id}
-	bind:checked={completed}
-	on:change={() => todos.toggle(_id)}
-	class="p-3 rounded-full border-lowContrast-light checked:text-brightBlue hover:cursor-pointer hover:border-brightBlue focus:outline-brightBlue"
-/>
-<label for={_id} class="flex-1 hover:cursor-grab">{task}</label>
+<form
+	method="post"
+	action="?/toggle"
+	bind:this={todoForm}
+	use:enhance={() => {
+		todos.toggle(_id);
 
-<button
-	on:click={() => {
-		todos.remove(_id);
+		return async ({ update }) => {
+			await update();
+		};
 	}}
-	class="ml-auto mr-2"
+	class="flex items-center gap-3 py-3 pl-5 hover:cursor-grab even:bg-neutral-50 odd:bg-transparent"
 >
-	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-close w-9"
-		><path
-			class="secondary"
-			fill-rule="evenodd"
-			d="M15.78 14.36a1 1 0 0 1-1.42 1.42l-2.82-2.83-2.83 2.83a1 1 0 1 1-1.42-1.42l2.83-2.82L7.3 8.7a1 1 0 0 1 1.42-1.42l2.83 2.83 2.82-2.83a1 1 0 0 1 1.42 1.42l-2.83 2.83 2.83 2.82z"
-		/></svg
-	>
-</button>
+	<input
+		type="checkbox"
+		name="checkbox"
+		id={_id}
+		bind:checked={completed}
+		on:change|preventDefault={() => todoForm.requestSubmit()}
+		class="p-3 rounded-full border-lowContrast-light checked:text-brightBlue hover:cursor-pointer hover:border-brightBlue focus:outline-brightBlue"
+	/>
+	<label for={_id} class="flex-1 hover:cursor-grab">{task}</label>
+
+	<!--Delivers the _id value for deleting the todo -->
+	<input type="hidden" name="_id" value={_id} />
+
+	<button formaction="?/delete" on:click={() => todos.delete(_id)} class="ml-auto mr-2">
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-close w-9"
+			><path
+				class="secondary"
+				fill-rule="evenodd"
+				d="M15.78 14.36a1 1 0 0 1-1.42 1.42l-2.82-2.83-2.83 2.83a1 1 0 1 1-1.42-1.42l2.83-2.82L7.3 8.7a1 1 0 0 1 1.42-1.42l2.83 2.83 2.82-2.83a1 1 0 0 1 1.42 1.42l-2.83 2.83 2.83 2.82z"
+			/></svg
+		>
+	</button>
+</form>
 
 <style lang="postcss">
 	input:checked + label {
 		color: theme(colors.fadedText.light);
 		text-decoration: line-through;
+	}
+	form:has(input[type='checkbox']:focus) {
+		background-color: theme(colors.purple.50);
 	}
 </style>

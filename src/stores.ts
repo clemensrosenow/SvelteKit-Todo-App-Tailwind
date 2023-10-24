@@ -13,7 +13,7 @@ function createTodoStore() {
 	return {
 		subscribe,
 		set,
-		add: (task: string) => {
+		create: (task: string) => {
 			const todo = {
 				task,
 				completed: false,
@@ -24,7 +24,7 @@ function createTodoStore() {
 		clearCompleted: () => {
 			update(($todos) => $todos.filter((todo: Todo) => !todo.completed));
 		},
-		remove: (todoId: string) => {
+		delete: (todoId: string) => {
 			update(($todos) => $todos.filter((todo: Todo) => todo._id !== todoId));
 		},
 		toggle: (todoId: string) => {

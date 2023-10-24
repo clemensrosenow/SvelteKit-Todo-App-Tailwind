@@ -56,7 +56,7 @@
    <LightSwitch on:click={toggleDarkMode} title="Toggle theme" bgLight='bg-listBackground-light' bgDark='bg-listBackground-dark' fillLight="fill-listBackground-light" fillDark='fill-listBackground-dark' width='w-12' height='h-6' rounded="rounded-full"/>
 </header>
 
-<main class="transition-colors">
+<main class="grid transition-colors grid-rows-[auto_1fr]">
 	<slot />
 </main>
 
