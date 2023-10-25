@@ -2,6 +2,16 @@
 	import { enhance } from '$app/forms';
 	import { todos } from '../stores';
 
+	import type { ToastSettings } from '@skeletonlabs/skeleton';
+	import { getToastStore } from '@skeletonlabs/skeleton';
+	const toastStore = getToastStore();
+	const t: ToastSettings = {
+		message: 'Todo item removed.',
+		timeout: 2000,
+		hideDismiss: true,
+		background: 'bg-purple-300'
+	};
+
 	export let task: string;
 	export let completed: boolean;
 	export let _id: string;
@@ -13,9 +23,14 @@
 	method="post"
 	action="?/toggle"
 	bind:this={todoForm}
-	use:enhance={() => {
-		todos.toggle(_id);
-
+	use:enhance={({ submitter }) => {
+		if(submitter?.classList.contains('delete-button')) {
+         todos.delete(_id);
+         toastStore.trigger(t);
+      } else {
+         todos.toggle(_id);
+      }
+		
 		return async ({ update }) => {
 			await update();
 		};
@@ -35,7 +50,11 @@
 	<!--Delivers the _id value for deleting the todo -->
 	<input type="hidden" name="_id" value={_id} />
 
-	<button formaction="?/delete" on:click={() => todos.delete(_id)} class="ml-auto mr-2">
+	<button
+		formaction="?/delete"
+		on:click={() => todos.delete(_id)}
+		class="ml-auto mr-2 delete-button"
+	>
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-close w-9"
 			><path
 				class="secondary"

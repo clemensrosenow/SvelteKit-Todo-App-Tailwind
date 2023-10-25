@@ -1,6 +1,16 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { remainingTodos, todos } from '../stores';
+
+   import type { ToastSettings } from '@skeletonlabs/skeleton';
+   import { getToastStore } from '@skeletonlabs/skeleton';
+   const toastStore = getToastStore();
+   const t: ToastSettings = {
+      message: 'Todo items cleared.',
+      timeout: 2000,
+      hideDismiss: true,
+      background: 'bg-purple-300'
+   };
 </script>
 
 <form
@@ -8,6 +18,7 @@
 	action="?/clearCompleted"
 	use:enhance={() => {
       todos.clearCompleted();
+      toastStore.trigger(t);
       
       return async ({ update }) => {
          await update();

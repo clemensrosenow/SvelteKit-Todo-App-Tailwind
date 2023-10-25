@@ -1,9 +1,13 @@
 <script lang="ts">
+	import { LightSwitch } from '@skeletonlabs/skeleton';
 	import { blur } from 'svelte/transition';
 	import '../app.css';
 	import { darkMode } from '../stores';
-   import { LightSwitch } from '@skeletonlabs/skeleton';
 	import TodoFilter from './TodoFilter.svelte';
+   
+   import { Toast } from '@skeletonlabs/skeleton';
+	import { initializeStores } from '@skeletonlabs/skeleton';
+	initializeStores();
 
 	function toggleDarkMode() {
 		$darkMode = !$darkMode;
@@ -13,6 +17,8 @@
 	$: console.log($darkMode);
 </script>
 
+
+<Toast shadow="shadow-lg" background="bg-listBackground-light" rounded="rounded-md" padding="px-5 py-3" width="w-full"/>
 <svelte:head>
 	<!--Google Fonts-->
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -22,6 +28,7 @@
 		rel="stylesheet"
 	/>
 
+	<!-- Initializes theme while avoiding FOUC -->
 	<!-- Initializes theme while avoiding FOUC -->
 	<script>
 		if (
@@ -52,8 +59,20 @@
 		</picture>
 	{/key}
 
-	<h1 class="uppercase tracking-[8px] text-3xl font-semibold mr-auto text-bodyBackground-light">Todo</h1>
-   <LightSwitch on:click={toggleDarkMode} title="Toggle theme" bgLight='bg-listBackground-light' bgDark='bg-listBackground-dark' fillLight="fill-listBackground-light" fillDark='fill-listBackground-dark' width='w-12' height='h-6' rounded="rounded-full"/>
+	<h1 class="uppercase tracking-[8px] text-3xl font-semibold mr-auto text-bodyBackground-light">
+		Todo
+	</h1>
+	<LightSwitch
+		on:click={toggleDarkMode}
+		title="Toggle theme"
+		bgLight="bg-listBackground-light"
+		bgDark="bg-listBackground-dark"
+		fillLight="fill-listBackground-light"
+		fillDark="fill-listBackground-dark"
+		width="w-12"
+		height="h-6"
+		rounded="rounded-full"
+	/>
 </header>
 
 <main class="grid transition-colors grid-rows-[auto_1fr]">
@@ -61,26 +80,27 @@
 </main>
 
 <footer>
-   <TodoFilter />
+	<TodoFilter />
 </footer>
 
 <style lang="postcss">
-	header, main, footer {
+	header,
+	main,
+	footer {
 		@apply max-w-4xl mx-auto px-6;
 	}
 
 	:global(html) {
 		background-color: theme(colors.bodyBackground.dark);
 	}
-   :global(body) {
-      scroll-behavior: smooth;
-      height: 100vh;
-      display: grid;
-      grid-template-rows: auto 1fr auto; 
-   }
+	:global(body) {
+		scroll-behavior: smooth;
+		height: 100vh;
+		display: grid;
+		grid-template-rows: auto 1fr auto;
+	}
 	/* Noch anpassen theme colors */
 	:global(.secondary) {
 		fill: theme(colors.lowContrast.light);
 	}
-   
 </style>

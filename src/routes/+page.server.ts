@@ -27,15 +27,31 @@ export const actions = {
 
 		if (task === '') {
 			throw new Error('Task cannot be empty.');
-		}
+      }
+      
 
 		//Handle task to be unique with MongoDB
 		// Server currently crashes when creating a duplicate task
 
-		todos.insertOne({
-			task,
-			completed: false
-		});
+		try {
+			/*todos.updateOne(
+				{ task },
+				{
+					$set: {
+						task,
+						completed: false
+					}
+				}
+			);*/
+			/*todos.insertOne({
+				task,
+				completed: false
+			});*/
+		} catch (error: any) {
+			if (error.code === 11000) {
+				console.log('Task already exists');
+			}
+		}
 	},
 	delete: async ({ request }) => {
 		const data = await request.formData();
