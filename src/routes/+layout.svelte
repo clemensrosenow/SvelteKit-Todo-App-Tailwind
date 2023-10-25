@@ -4,9 +4,8 @@
 	import '../app.css';
 	import { darkMode } from '../stores';
 	import TodoFilter from './TodoFilter.svelte';
-   
-   import { Toast } from '@skeletonlabs/skeleton';
-	import { initializeStores } from '@skeletonlabs/skeleton';
+
+	import { Toast, initializeStores } from '@skeletonlabs/skeleton';
 	initializeStores();
 
 	function toggleDarkMode() {
@@ -14,11 +13,15 @@
 		document.documentElement.classList.toggle('dark');
 		localStorage.theme = $darkMode ? 'dark' : 'light';
 	}
-	$: console.log($darkMode);
 </script>
 
-
-<Toast shadow="shadow-lg" background="bg-listBackground-light" rounded="rounded-md" padding="px-5 py-3" width="w-full"/>
+<Toast
+	shadow="shadow-lg"
+	background="bg-listBackground-light"
+	rounded="rounded-md"
+	padding="px-5 py-3"
+	width="w-full"
+/>
 <svelte:head>
 	<!--Google Fonts-->
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -28,6 +31,7 @@
 		rel="stylesheet"
 	/>
 
+	<!-- Initializes theme while avoiding FOUC -->
 	<!-- Initializes theme while avoiding FOUC -->
 	<!-- Initializes theme while avoiding FOUC -->
 	<script>
@@ -87,7 +91,7 @@
 	header,
 	main,
 	footer {
-		@apply max-w-4xl mx-auto px-6;
+		@apply max-w-4xl mx-auto px-6 w-full;
 	}
 
 	:global(html) {
@@ -97,7 +101,7 @@
 		scroll-behavior: smooth;
 		height: 100vh;
 		display: grid;
-		grid-template-rows: auto 1fr auto;
+		grid-template-rows: auto minmax(0, 1fr) auto;
 	}
 	/* Noch anpassen theme colors */
 	:global(.secondary) {

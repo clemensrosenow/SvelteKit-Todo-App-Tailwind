@@ -5,7 +5,7 @@
 </script>
 
 
-<nav class="flex justify-center p-3 mb-0 rounded-md gap-7 bg-listBackground-light">
+<nav class="flex p-3 mb-0 rounded-md justify-evenly gap-7 bg-listBackground-light">
 	{#each $filterOptions as filter}
 		<label class="font-semibold text-fadedText-light hover:cursor-pointer hover:text-fadedText-hover-light">
 			<input type="radio" name="filter" value={filter} bind:group={$filterCriterion} class="hidden"/>

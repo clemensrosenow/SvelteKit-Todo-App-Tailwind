@@ -5,6 +5,7 @@
 
 	// Retrieve the fetched todo data from MongoDB
 	export let data;
+   //@ts-ignore
 	$todos = data.todos;
 </script>
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { flip } from 'svelte/animate';
-	import { fly } from 'svelte/transition';
+	import { fly, slide } from 'svelte/transition';
 	import { displayedTodos } from '../stores';
 	import TodoItem from './TodoItem.svelte';
 	import TodoListFooter from './TodoListFooter.svelte';
@@ -67,7 +67,6 @@
 		on:drop|preventDefault={(event) => handleDrop(event)}
 		bind:this={listContainer}
 		class="h-full overflow-y-scroll"
-		style="scrollbar-gutter: stable;"
 	>
 		{#if $displayedTodos.length === 0}
 			<p class="p-3 text-center text-fadedText-light">
@@ -79,9 +78,9 @@
 			<li
 				draggable="true"
 				animate:flip={{ duration: 300 }}
-				transition:fly={{ y: -20, duration: 300 }}
+				in:fly={{ y: -20, duration: 300 }}
+				out:slide={{ axis: 'x', duration: 5000 }}
 				on:dragstart={(event) => handleDragStart(event, todo._id)}
-				on:touchstart={(event) => console.log(event)}
 			>
 				<TodoItem {...todo} />
 			</li>
