@@ -1,8 +1,8 @@
-import { writable, derived, readable } from 'svelte/store';
+import { derived, readable, writable } from 'svelte/store';
 
 export interface Todo {
 	task: string;
-   _id: string;
+	id: string;
 	completed: boolean;
 }
 
@@ -13,24 +13,19 @@ function createTodoStore() {
 	return {
 		subscribe,
 		set,
-		create: (task: string) => {
-			const todo = {
-				task,
-				completed: false,
-				_id: Date.now().toString()
-			};
-			update(($todos) => [todo, ...$todos]);
+		create: (task: string, id: string) => {
+			update(($todos) => [{ task, completed: false, id }, ...$todos]);
 		},
 		clearCompleted: () => {
 			update(($todos) => $todos.filter((todo: Todo) => !todo.completed));
 		},
 		delete: (todoId: string) => {
-			update(($todos) => $todos.filter((todo: Todo) => todo._id !== todoId));
+			update(($todos) => $todos.filter((todo: Todo) => todo.id !== todoId));
 		},
 		toggle: (todoId: string) => {
 			update(($todos) =>
 				$todos.map((todo: Todo) => {
-					if (todo._id === todoId) {
+					if (todo.id === todoId) {
 						return { ...todo, completed: !todo.completed };
 					}
 					return todo;

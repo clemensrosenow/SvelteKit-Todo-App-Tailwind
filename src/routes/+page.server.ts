@@ -6,10 +6,11 @@ export const load: PageServerLoad = async function () {
 	//Load all todos with the newest first
 	const data = await todos.find().sort({ _id: -1 }).toArray();
 
+	// Convert MongoDB ObjectId index "_id" to string for serialization expected from SvelteKit
 	const todosData = data.map((todo) => {
-		//@ts-ignore
-		todo._id = todo._id.toString(); // Convert ObjectId to a string for serialization expected from SvelteKit
-		return todo;
+		const { _id, ...properties } = todo;
+
+		return { id: _id.toString(), ...properties };
 	});
 
 	return {
@@ -23,51 +24,37 @@ export const actions = {
 	},
 	create: async ({ request }) => {
 		const data = await request.formData();
-		const task = data.get('todoText');
-
-		if (task === '') {
+      const task = data.get('todoText');
+      if (!task) {
 			throw new Error('Task cannot be empty.');
-      }
-      
-
-		//Handle task to be unique with MongoDB
-		// Server currently crashes when creating a duplicate task
-
-		try {
-			/*todos.updateOne(
-				{ task },
-				{
-					$set: {
-						task,
-						completed: false
-					}
-				}
-			);*/
-			/*todos.insertOne({
-				task,
-				completed: false
-			});*/
-		} catch (error: any) {
-			if (error.code === 11000) {
-				console.log('Task already exists');
-			}
 		}
+
+		const insertResult = await todos.insertOne({
+			task,
+			completed: false,
+      });
+
+      const objectId = insertResult.insertedId;
+      
+      // Return objectId to client
+      return { objectId };
 	},
 	delete: async ({ request }) => {
 		const data = await request.formData();
-		const _id = data.get('_id');
-		if (!_id) {
+		const id = data.get('id');
+		if (!id) {
 			throw new Error('No ID provided.');
 		}
-		todos.deleteOne({ _id: new ObjectId(_id.toString()) });
+
+		todos.deleteOne({ _id: new ObjectId(id.toString()) });
 	},
 	toggle: async ({ request }) => {
 		const data = await request.formData();
-		const _id = data.get('_id');
-		if (!_id) {
+		const id = data.get('id');
+		if (!id) {
 			throw new Error('No ID provided.');
 		}
-		todos.updateOne({ _id: new ObjectId(_id.toString()) }, [
+		todos.updateOne({ _id: new ObjectId(id.toString()) }, [
 			{ $set: { completed: { $not: '$completed' } } }
 		]);
 	}

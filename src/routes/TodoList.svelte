@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { flip } from 'svelte/animate';
-	import { fly, slide } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 	import { displayedTodos } from '../stores';
 	import TodoItem from './TodoItem.svelte';
 	import TodoListFooter from './TodoListFooter.svelte';
@@ -34,55 +34,21 @@
       return false;
    } */
 
-	//Handle drag & drop functionality
-	function handleDragStart(event: DragEvent, id: string) {
-		if (event.dataTransfer === null) return;
-		event.dataTransfer.setData('text/plain', id);
-		console.log('started dragging' + id);
-	}
-	function handleDragOver() {
-		console.log('dragover');
-	}
-
-	function handleDrop(event: DragEvent) {
-		if (event.dataTransfer === null) return;
-		const draggedId = event.dataTransfer.getData('text/plain');
-		console.log(draggedId);
-
-		/*const targetTodo = event.target.closest('li');
-		if (!targetTodo) return;
-
-		console.log(targetTodo);
-
-		const targetId = targetTodo.getAttribute('data-id');
-		console.log(targetId);*/
-	}
-
 	// Drag Start Event Listeners mit use:action https://stackoverflow.com/questions/60934557/how-to-bind-events-dynamically-in-svelte
+	//Needed Event Listeners: dragstart,dragenter, dragleave, dragover, drop
 </script>
 
 <section class="grid grid-rows-[1fr_auto]">
-	<ul
-		on:dragover|preventDefault={handleDragOver}
-		on:drop|preventDefault={(event) => handleDrop(event)}
-		bind:this={listContainer}
-		class="h-full overflow-y-scroll"
-	>
+	<ul bind:this={listContainer} class="overflow-y-scroll">
 		{#if $displayedTodos.length === 0}
 			<p class="p-3 text-center text-fadedText-light">
-				Add your todos using the input above.<br />Drag and drop to reorder list.<br />Swipe left to
-				delete todo.
+				Add todos using the input above.<br />Drag and drop to reorder list.<br />Swipe left to
+				remove todos.
 			</p>
 		{/if}
-		{#each $displayedTodos as todo (todo._id)}
-			<li
-				draggable="true"
-				animate:flip={{ duration: 300 }}
-				in:fly={{ y: -20, duration: 300 }}
-				out:slide={{ axis: 'x', duration: 5000 }}
-				on:dragstart={(event) => handleDragStart(event, todo._id)}
-			>
-				<TodoItem {...todo} />
+		{#each $displayedTodos as todo, index (todo.id)}
+			<li animate:flip={{ duration: 300 }} transition:fly={{ y: -20, duration: 300 }} class="relative">
+				<TodoItem {...todo} {index}/>
 			</li>
 		{/each}
 	</ul>

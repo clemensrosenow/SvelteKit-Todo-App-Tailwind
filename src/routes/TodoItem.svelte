@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { spring } from 'svelte/motion';
 	import { todos } from '../stores';
-   import { spring } from 'svelte/motion';
 
 	import type { ToastSettings } from '@skeletonlabs/skeleton';
 	import { getToastStore } from '@skeletonlabs/skeleton';
@@ -15,23 +15,26 @@
 
 	export let task: string;
 	export let completed: boolean;
-	export let _id: string;
+	export let id: string;
+	export let index: number;
 
 	let todoForm: HTMLFormElement;
-   $: if(todoForm) { todoForm.style.translate = `-${$swipePositionX}px`}
+	$: if (todoForm) {
+		todoForm.style.translate = `-${$swipePositionX}px`;
+	}
 
-   let initialCoordinates: {x: number | null, y: number | null} = {
-      x: null,
-      y: null
-   }
-   
+	let initialCoordinates = {
+		x: 0,
+		y: 0
+	};
+
 	let swipingLeft: boolean | null = null;
 
-   const swipePositionX = spring(0, {
-      stiffness: 0.05,
-      damping: 0.3,
-      precision: 1
-   })
+	const swipePositionX = spring(0, {
+		stiffness: 0.05,
+		damping: 0.3,
+		precision: 1
+	});
 
 	function startTouch(event: TouchEvent) {
 		initialCoordinates.x = event.touches[0].clientX;
@@ -39,87 +42,94 @@
 	}
 
 	function slideTodo(event: TouchEvent) {
-		if (initialCoordinates.x === null || initialCoordinates.y === null || swipingLeft === false) {
+		if (!initialCoordinates.x || !initialCoordinates.y || swipingLeft === false) {
 			return;
 		}
 
-		const currentX = event.touches[0].clientX;
-		const currentY = event.touches[0].clientY;
+		const currentCoordinates = {
+			x: event.touches[0].clientX,
+			y: event.touches[0].clientY
+		};
 
-		const diffX = initialCoordinates.x - currentX;
-		const diffY = initialCoordinates.y - currentY;
+		const diffX = initialCoordinates.x - currentCoordinates.x;
+		const diffY = initialCoordinates.y - currentCoordinates.y;
 
 		if (swipingLeft === null) {
 			// Boolean Expression checking if swiped horizontally & left
-			return swipingLeft = Math.abs(diffX) > Math.abs(diffY) && diffX > 0;
+			return (swipingLeft = Math.abs(diffX) > Math.abs(diffY) && diffX > 0);
 		}
-      
-      //Avoid swiping to the right after initially to the left
-      if (diffX < 0) {
-         return
-      }
-          
-      return swipePositionX.set(diffX) 
+
+		//Avoid swiping to the right after initially to the left
+		if (diffX < 0) {
+			return;
+		}
+
+		return swipePositionX.set(diffX);
 	}
 
 	function endTouch() {
-      //handle Logic for sticking left
-      
-		initialCoordinates.x = null;
-		initialCoordinates.y = null;
+		//todo: implement Logic for sticking left
+
+		initialCoordinates.x = 0;
+		initialCoordinates.y = 0;
 		swipingLeft = null;
-      swipePositionX.set(0)
+		swipePositionX.set(0);
+	}
+
+	async function toggleTodo() {
+		todos.toggle(id);
+		//Handle API endpoint to toggle todo
 	}
 </script>
 
 <form
 	method="post"
-	action="?/toggle"
+	action="?/delete"
+	id={index.toString()}
 	bind:this={todoForm}
 	on:touchstart={startTouch}
 	on:touchmove|preventDefault={slideTodo}
 	on:touchend|preventDefault={endTouch}
-	use:enhance={({ submitter }) => {
-		if (submitter?.classList.contains('delete-button')) {
-			todos.delete(_id);
-			toastStore.trigger(t);
-		} else {
-			todos.toggle(_id);
-		}
+	use:enhance={() => {
+		todos.delete(id);
+		toastStore.trigger(t);
 
 		return async ({ update }) => {
 			await update();
 		};
 	}}
-	class="flex items-center gap-3 py-3 pl-5 transition-transform duration-1000 hover:cursor-grab even:bg-neutral-50 odd:bg-transparent"
+	class={`${
+		index % 2 === 0 ? 'bg-white' : 'bg-neutral-50'
+	} flex items-center flex-1 gap-3 px-5 py-3 hover:cursor-grab`}
 >
 	<input
 		type="checkbox"
 		name="checkbox"
-		id={_id}
+		{id}
 		bind:checked={completed}
-		on:change|preventDefault={() => todoForm.requestSubmit()}
+		on:change|preventDefault={toggleTodo}
 		class="p-3 rounded-full border-lowContrast-light checked:text-brightBlue hover:cursor-pointer hover:border-brightBlue focus:outline-brightBlue"
 	/>
-	<label for={_id} class="flex-1 hover:cursor-grab">{task}</label>
+	<label for={id} class="flex-1 hover:cursor-grab">{task}</label>
 
-	<!--Delivers the _id value for deleting the todo -->
-	<input type="hidden" name="_id" value={_id} />
-
-	<button
-		formaction="?/delete"
-		on:click={() => todos.delete(_id)}
-		class="ml-auto mr-2 delete-button"
-	>
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-close w-9"
-			><path
-				class="secondary"
-				fill-rule="evenodd"
-				d="M15.78 14.36a1 1 0 0 1-1.42 1.42l-2.82-2.83-2.83 2.83a1 1 0 1 1-1.42-1.42l2.83-2.82L7.3 8.7a1 1 0 0 1 1.42-1.42l2.83 2.83 2.82-2.83a1 1 0 0 1 1.42 1.42l-2.83 2.83 2.83 2.82z"
-			/></svg
-		>
-	</button>
+	<!--Delivers the id value for deleting the todo -->
+	<input type="hidden" name="id" value={id} />
 </form>
+
+<!-- Button outside of form to enable fixed absolute position -->
+<button
+	type="submit"
+	form={index.toString()}
+	class="absolute inset-0 left-auto px-2 bg-mainText-light"
+>
+	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-close w-9"
+		><path
+			class="secondary"
+			fill-rule="evenodd"
+			d="M15.78 14.36a1 1 0 0 1-1.42 1.42l-2.82-2.83-2.83 2.83a1 1 0 1 1-1.42-1.42l2.83-2.82L7.3 8.7a1 1 0 0 1 1.42-1.42l2.83 2.83 2.82-2.83a1 1 0 0 1 1.42 1.42l-2.83 2.83 2.83 2.82z"
+		/></svg
+	>
+</button>
 
 <style lang="postcss">
 	input:checked + label {
