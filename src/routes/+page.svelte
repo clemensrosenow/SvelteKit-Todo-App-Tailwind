@@ -5,8 +5,14 @@
 
 	// Retrieve the fetched todo data from MongoDB
 	export let data;
-   //@ts-ignore
+	//@ts-ignore
 	$todos = data.todos;
+
+	// Syncs todo store with MongoDB ObjectId after input formaction
+	export let form;
+	$: if (form) {
+		todos.create(form);
+	}
 </script>
 
 <TodoInput />

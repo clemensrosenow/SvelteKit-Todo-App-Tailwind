@@ -6,15 +6,16 @@ export interface Todo {
 	completed: boolean;
 }
 
-function createTodoStore() {
+//Custom Todo store with CRUD operations
+function customTodoStore() {
 	const initialTodos: Todo[] = [];
 	const { subscribe, set, update } = writable(initialTodos);
 
 	return {
 		subscribe,
 		set,
-		create: (task: string, id: string) => {
-			update(($todos) => [{ task, completed: false, id }, ...$todos]);
+		create: (newTodo:Todo) => {
+			update(($todos) => [newTodo, ...$todos]);
 		},
 		clearCompleted: () => {
 			update(($todos) => $todos.filter((todo: Todo) => !todo.completed));
@@ -22,20 +23,22 @@ function createTodoStore() {
 		delete: (todoId: string) => {
 			update(($todos) => $todos.filter((todo: Todo) => todo.id !== todoId));
 		},
-		toggle: (todoId: string) => {
+		/*toggle: (todoId: string) => {
 			update(($todos) =>
 				$todos.map((todo: Todo) => {
-					if (todo.id === todoId) {
+               if (todo.id === todoId) {
+                  console.log("Todo store value: ", todo.completed)
+                  console.log("New store value", !todo.completed)
 						return { ...todo, completed: !todo.completed };
 					}
 					return todo;
 				})
 			);
-		}
+		}*/
 	};
 }
 
-export const todos = createTodoStore();
+export const todos = customTodoStore();
 export const remainingTodos = derived(
 	todos,
 	($todos) => $todos.filter((todo: Todo) => !todo.completed).length
@@ -45,7 +48,7 @@ const filters = ['All', 'Active', 'Completed'];
 export const filterOptions = readable(filters);
 export const filterCriterion = writable(filters[0]);
 
-export const displayedTodos = derived([todos, filterCriterion], ([$todos, $filterCriterion]) => {
+/*export const displayedTodos = derived([todos, filterCriterion], ([$todos, $filterCriterion]) => {
 	switch ($filterCriterion) {
 		case 'Active':
 			return $todos.filter((todo: Todo) => !todo.completed);
@@ -55,4 +58,4 @@ export const displayedTodos = derived([todos, filterCriterion], ([$todos, $filte
 		default:
 			return $todos;
 	}
-});
+});*/

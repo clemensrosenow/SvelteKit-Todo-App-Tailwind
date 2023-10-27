@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { flip } from 'svelte/animate';
-	import { fly } from 'svelte/transition';
-	import { displayedTodos } from '../stores';
-	import TodoItem from './TodoItem.svelte';
+	
+	import TodoItems from './TodoItems.svelte';
 	import TodoListFooter from './TodoListFooter.svelte';
+   import { todos } from '../stores';
 
 	let listContainer: HTMLUListElement;
 
@@ -39,18 +38,14 @@
 </script>
 
 <section class="grid grid-rows-[1fr_auto]">
-	<ul bind:this={listContainer} class="overflow-y-scroll">
-		{#if $displayedTodos.length === 0}
+	<ul bind:this={listContainer} class="overflow-y-auto">
+		{#if $todos.length === 0}
 			<p class="p-3 text-center text-fadedText-light">
 				Add todos using the input above.<br />Drag and drop to reorder list.<br />Swipe left to
 				remove todos.
 			</p>
 		{/if}
-		{#each $displayedTodos as todo, index (todo.id)}
-			<li animate:flip={{ duration: 300 }} transition:fly={{ y: -20, duration: 300 }} class="relative">
-				<TodoItem {...todo} {index}/>
-			</li>
-		{/each}
+		<TodoItems/>
 	</ul>
 	<TodoListFooter />
 </section>

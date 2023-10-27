@@ -36,8 +36,8 @@ export const actions = {
 
       const objectId = insertResult.insertedId;
       
-      // Return objectId to client
-      return { objectId };
+      // Return new Todo item to client for store synchronization
+      return {task, completed: false, id: objectId.toString() };
 	},
 	delete: async ({ request }) => {
 		const data = await request.formData();
