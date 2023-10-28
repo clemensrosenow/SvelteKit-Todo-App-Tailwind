@@ -1,9 +1,10 @@
 <script lang="ts">
-	
-	import TodoItems from './TodoItems.svelte';
+	import { dndzone } from 'svelte-dnd-action';
+	import { flip } from 'svelte/animate';
+	import { fly } from 'svelte/transition';
+	import { todos } from '../stores';
+	import TodoItem from './TodoItem.svelte';
 	import TodoListFooter from './TodoListFooter.svelte';
-   import { todos } from '../stores';
-   import {dndzone} from 'svelte-dnd-action';
 
 	let listContainer: HTMLUListElement;
 
@@ -33,20 +34,35 @@
       }
       return false;
    } */
-   function handleSort(e) {
-      $todos = e.detail.items
-   } 
+	function handleSort(e) {
+		$todos = e.detail.items;
+	}
 </script>
 
 <section class="grid grid-rows-[1fr_auto]">
-	<ul bind:this={listContainer} class="overflow-y-auto" use:dndzone={{items: $todos, flipDurationMs: 300}} on:consider={handleSort} on:finalize={handleSort}> 
+	<ul
+		bind:this={listContainer}
+		class="overflow-y-auto"
+		use:dndzone={{ items: $todos, flipDurationMs: 300 }}
+		on:consider={handleSort}
+		on:finalize={handleSort}
+	>
 		{#if $todos.length === 0}
 			<p class="p-3 text-center text-fadedText-light">
 				Add todos using the input above.<br />Drag and drop to reorder list.<br />Swipe left to
 				remove todos.
 			</p>
 		{/if}
-		<TodoItems/>
+		{#each $todos as { task, completed, id }, index (id)}
+			<li
+				animate:flip={{ duration: 300 }}
+				transition:fly={{ y: -20, duration: 300 }}
+				draggable="true"
+				class="relative"
+			>
+				<TodoItem {task} bind:completed {id} {index} />
+			</li>
+		{/each}
 	</ul>
 	<TodoListFooter />
 </section>

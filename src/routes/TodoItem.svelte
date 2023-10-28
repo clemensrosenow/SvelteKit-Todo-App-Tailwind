@@ -1,8 +1,11 @@
 <script lang="ts">
+	export let task: string;
+	export let id: string;
+	export let completed: boolean;
+	export let index: number;
+
 	import { enhance } from '$app/forms';
-	import { flip } from 'svelte/animate';
 	import { spring } from 'svelte/motion';
-	import { fly } from 'svelte/transition';
 	import { todos } from '../stores';
 
 	import type { ToastSettings } from '@skeletonlabs/skeleton';
@@ -76,71 +79,62 @@
 	//Drag & Drop Needed Event Listeners: dragstart,dragenter, dragleave, dragover, drop
 </script>
 
-{#each $todos as todo, index (todo.id)}
-	<li
-		animate:flip={{ duration: 300 }}
-		transition:fly={{ y: -20, duration: 300 }}
-		draggable="true"
-		class="relative"
+<form
+	method="post"
+	action="?/delete"
+	id={index.toString()}
+	bind:this={todoForm}
+	on:touchstart={startTouch}
+	on:touchmove|preventDefault={slideTodo}
+	on:touchend|preventDefault={endTouch}
+	use:enhance={() => {
+		todos.delete(id);
+		toastStore.trigger(t);
+
+		return async ({ update }) => {
+			await update();
+		};
+	}}
+	class={`flex items-center flex-1 gap-3 px-5 py-3 hover:cursor-grab ${
+		index % 2 === 0 ? 'bg-white' : 'bg-neutral-50'
+	} `}
+>
+	<input
+		type="checkbox"
+		name="checkbox"
+		{id}
+		bind:checked={completed}
+		on:change={async () => {
+			//Toggle Todo in backend using dynamic API route
+			await fetch(`todo/${id}`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+		}}
+		class="p-3 rounded-full border-lowContrast-light checked:text-brightBlue hover:cursor-pointer hover:border-brightBlue focus:outline-brightBlue"
+	/>
+	<label for={id} class="flex-1 hover:cursor-grab">{task}</label>
+
+	<!--Delivers the id value for deleting the todo on the backend-->
+	<input type="hidden" hidden name="id" value={id} />
+</form>
+
+<!-- Button located outside of form to enable fixed absolute position -->
+<button
+	type="submit"
+	form={index.toString()}
+	class="absolute inset-0 left-auto px-2 bg-mainText-light"
+>
+	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-close w-9"
+		><path
+			class="secondary"
+			fill-rule="evenodd"
+			d="M15.78 14.36a1 1 0 0 1-1.42 1.42l-2.82-2.83-2.83 2.83a1 1 0 1 1-1.42-1.42l2.83-2.82L7.3 8.7a1 1 0 0 1 1.42-1.42l2.83 2.83 2.82-2.83a1 1 0 0 1 1.42 1.42l-2.83 2.83 2.83 2.82z"
+		/></svg
 	>
-		<form
-			method="post"
-			action="?/delete"
-			id={index.toString()}
-			bind:this={todoForm}
-			on:touchstart={startTouch}
-			on:touchmove|preventDefault={slideTodo}
-			on:touchend|preventDefault={endTouch}
-			use:enhance={() => {
-				todos.delete(todo.id);
-				toastStore.trigger(t);
-
-				return async ({ update }) => {
-					await update();
-				};
-			}}
-			class={`flex items-center flex-1 gap-3 px-5 py-3 hover:cursor-grab ${
-				index % 2 === 0 ? 'bg-white' : 'bg-neutral-50'
-			} `}
-		>
-			<input
-				type="checkbox"
-				name="checkbox"
-				id={todo.id}
-				bind:checked={todo.completed}
-				on:change={async () => {
-					//Toggle Todo in backend using dynamic API route
-					await fetch(`todo/${todo.id}`, {
-						method: 'PATCH',
-						headers: {
-							'Content-Type': 'application/json'
-						}
-					});
-				}}
-				class="p-3 rounded-full border-lowContrast-light checked:text-brightBlue hover:cursor-pointer hover:border-brightBlue focus:outline-brightBlue"
-			/>
-			<label for={todo.id} class="flex-1 hover:cursor-grab">{todo.task}</label>
-
-			<!--Delivers the id value for deleting and toggling the todo on the backend-->
-			<input type="hidden" hidden name="id" value={todo.id} />
-		</form>
-
-		<!-- Button located outside of form to enable fixed absolute position -->
-		<button
-			type="submit"
-			form={index.toString()}
-			class="absolute inset-0 left-auto px-2 bg-mainText-light"
-		>
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-close w-9"
-				><path
-					class="secondary"
-					fill-rule="evenodd"
-					d="M15.78 14.36a1 1 0 0 1-1.42 1.42l-2.82-2.83-2.83 2.83a1 1 0 1 1-1.42-1.42l2.83-2.82L7.3 8.7a1 1 0 0 1 1.42-1.42l2.83 2.83 2.82-2.83a1 1 0 0 1 1.42 1.42l-2.83 2.83 2.83 2.82z"
-				/></svg
-			>
-		</button>
-	</li>
-{/each}
+</button>
 
 <style lang="postcss">
 	input:checked + label {

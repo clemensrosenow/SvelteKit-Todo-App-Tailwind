@@ -1,15 +1,14 @@
 //@ts-nocheck
 import {MongoClient} from "mongodb"
-import dotenv from 'dotenv'
-dotenv.config()
+import { MONGODB_URI, NODE_ENVIRONMENT, DATABASE_NAME } from "$env/static/private";
 
-const URI = process.env['MONGODB_URI'];
-const CLIENT = new MongoClient(URI)
+
+const CLIENT = new MongoClient(MONGODB_URI)
 
 export function startMongoDB() {
    console.log("Starting Mongo...")
 
-   if (process.env['NODE_ENVIRONMENT'] === 'development') {
+   if (NODE_ENVIRONMENT === 'development') {
       //Preserves value across module reloads caused by Hot Module Replacement in development mode
       
       if (!global._mongoClientPromise) {
@@ -22,4 +21,4 @@ export function startMongoDB() {
 }
 
 // Database can be shared across functions
-export default CLIENT.db(process.env["DATABASE_NAME"])
+export default CLIENT.db(DATABASE_NAME)
