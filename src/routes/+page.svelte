@@ -10,10 +10,16 @@
 
 	// Syncs todo store with MongoDB ObjectId after input formaction
 	export let form;
+   // If statement needs to be more specific
 	$: if (form) {
 		todos.create(form);
 	}
 </script>
+
+<!--
+{#if form?.error}
+   <p style="color: red">{form.error}</p>
+{/if}-->
 
 <TodoInput />
 <TodoList />

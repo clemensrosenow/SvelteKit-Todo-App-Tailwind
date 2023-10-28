@@ -2,7 +2,7 @@
 	import { dndzone } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
 	import { fly } from 'svelte/transition';
-	import { todos } from '../stores';
+	import { filterCriterion, filterOptions, todos } from '../stores';
 	import TodoItem from './TodoItem.svelte';
 	import TodoListFooter from './TodoListFooter.svelte';
 
@@ -54,13 +54,19 @@
 			</p>
 		{/if}
 		{#each $todos as { task, completed, id }, index (id)}
+			{@const todoIsVisible =
+				$filterCriterion === $filterOptions[0] ||
+				($filterCriterion === $filterOptions[1] && !completed) ||
+				($filterCriterion === $filterOptions[2] && completed)}
 			<li
 				animate:flip={{ duration: 300 }}
 				transition:fly={{ y: -20, duration: 300 }}
 				draggable="true"
 				class="relative"
 			>
-				<TodoItem {task} bind:completed {id} {index} />
+				{#if todoIsVisible}
+					<TodoItem {task} bind:completed {id} {index} />
+				{/if}
 			</li>
 		{/each}
 	</ul>

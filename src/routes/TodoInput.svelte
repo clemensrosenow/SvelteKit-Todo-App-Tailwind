@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+
+   // Toast Notification after Creation
 	import type { ToastSettings } from '@skeletonlabs/skeleton';
 	import { getToastStore } from '@skeletonlabs/skeleton';
-	import { todos } from '../stores';
 	const toastStore = getToastStore();
 	const t: ToastSettings = {
 		message: 'Todo item created successfully.',
@@ -13,7 +14,6 @@
 
 	let todoText = '';
 	let creating = false;
-	let todoInput: HTMLInputElement;
 </script>
 
 <form
@@ -24,21 +24,11 @@
 			throw new Error("Todo can't be empty.");
 		}
 
-		if ($todos.some((todo) => todo.task.includes(todoText))) {
-			throw new Error('Todo already exists.');
-		}
-
-		//Switch from completed to all todos when creating a new todo
-		/*if ($filterCriterion === $filterOptions[2]) {
-			$filterCriterion = $filterOptions[0];
-		}*/
-
 		creating = true;
 
 		return async ({ update }) => {
 			await update();
 			creating = false;
-			todoInput.focus();
 			toastStore.trigger(t);
 		};
 
@@ -55,7 +45,6 @@
 		required
 		disabled={creating}
 		bind:value={todoText}
-		bind:this={todoInput}
 		class="flex-1 w-0 px-4 py-3 bg-transparent border-0 rounded-sm form-input text-mainText-light caret-brightBlue placeholder-fadedText-light disabled:contrast-50"
 	/>
 	<button type="submit" disabled={creating} class="pr-2 text-mainText-light disabled:contrast-50"

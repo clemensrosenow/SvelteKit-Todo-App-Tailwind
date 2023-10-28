@@ -1,13 +1,13 @@
 <script lang="ts">
 	export let task: string;
-	export let id: string;
 	export let completed: boolean;
+	export let id: string;
 	export let index: number;
 
 	import { enhance } from '$app/forms';
 	import { spring } from 'svelte/motion';
 	import { todos } from '../stores';
-
+	// Toast Notification after Deletion
 	import type { ToastSettings } from '@skeletonlabs/skeleton';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	const toastStore = getToastStore();
@@ -95,9 +95,7 @@
 			await update();
 		};
 	}}
-	class={`flex items-center flex-1 gap-3 px-5 py-3 hover:cursor-grab ${
-		index % 2 === 0 ? 'bg-white' : 'bg-neutral-50'
-	} `}
+	class="flex items-center flex-1 gap-3 px-5 py-4 hover:cursor-grab"
 >
 	<input
 		type="checkbox"
@@ -125,7 +123,7 @@
 <button
 	type="submit"
 	form={index.toString()}
-	class="absolute inset-0 left-auto px-2 bg-mainText-light"
+	class="absolute inset-0 left-auto px-3 bg-mainText-light"
 >
 	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-close w-9"
 		><path
