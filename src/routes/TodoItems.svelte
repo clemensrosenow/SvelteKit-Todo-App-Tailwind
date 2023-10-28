@@ -72,56 +72,63 @@
 		swipingLeft = null;
 		swipePositionX.set(0);
 	}
+
+	//Drag & Drop Needed Event Listeners: dragstart,dragenter, dragleave, dragover, drop
 </script>
 
 {#each $todos as todo, index (todo.id)}
-	<li animate:flip={{ duration: 300 }} transition:fly={{ y: -20, duration: 300 }} class="relative">
+	<li
+		animate:flip={{ duration: 300 }}
+		transition:fly={{ y: -20, duration: 300 }}
+		draggable="true"
+		class="relative"
+	>
 		<form
 			method="post"
-			action="?/toggle"
+			action="?/delete"
 			id={index.toString()}
 			bind:this={todoForm}
 			on:touchstart={startTouch}
 			on:touchmove|preventDefault={slideTodo}
 			on:touchend|preventDefault={endTouch}
-			use:enhance={({ action }) => {
-				if (action.search.includes('delete')) {
-					todos.delete(todo.id);
-					toastStore.trigger(t);
-				}
+			use:enhance={() => {
+				todos.delete(todo.id);
+				toastStore.trigger(t);
 
 				return async ({ update }) => {
 					await update();
 				};
 			}}
-			class={`${
+			class={`flex items-center flex-1 gap-3 px-5 py-3 hover:cursor-grab ${
 				index % 2 === 0 ? 'bg-white' : 'bg-neutral-50'
-			} flex items-center flex-1 gap-3 px-5 py-3 hover:cursor-grab`}
+			} `}
 		>
 			<input
 				type="checkbox"
 				name="checkbox"
 				id={todo.id}
 				bind:checked={todo.completed}
-				on:change={() => {
-					//Trigger form submit for backend update without page reloading
-					todoForm.requestSubmit();
+				on:change={async () => {
+					//Toggle Todo in backend using dynamic API route
+					await fetch(`todo/${todo.id}`, {
+						method: 'PATCH',
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					});
 				}}
 				class="p-3 rounded-full border-lowContrast-light checked:text-brightBlue hover:cursor-pointer hover:border-brightBlue focus:outline-brightBlue"
 			/>
 			<label for={todo.id} class="flex-1 hover:cursor-grab">{todo.task}</label>
 
-			<!--Delivers the id value for deleting the todo -->
+			<!--Delivers the id value for deleting and toggling the todo on the backend-->
 			<input type="hidden" hidden name="id" value={todo.id} />
-
-			<button type="submit">Toggle</button>
 		</form>
 
-		<!-- Button outside of form to enable fixed absolute position -->
+		<!-- Button located outside of form to enable fixed absolute position -->
 		<button
 			type="submit"
 			form={index.toString()}
-			formaction="?/delete"
 			class="absolute inset-0 left-auto px-2 bg-mainText-light"
 		>
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-close w-9"

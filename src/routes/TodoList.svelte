@@ -3,6 +3,7 @@
 	import TodoItems from './TodoItems.svelte';
 	import TodoListFooter from './TodoListFooter.svelte';
    import { todos } from '../stores';
+   import {dndzone} from 'svelte-dnd-action';
 
 	let listContainer: HTMLUListElement;
 
@@ -32,13 +33,13 @@
       }
       return false;
    } */
-
-	// Drag Start Event Listeners mit use:action https://stackoverflow.com/questions/60934557/how-to-bind-events-dynamically-in-svelte
-	//Needed Event Listeners: dragstart,dragenter, dragleave, dragover, drop
+   function handleSort(e) {
+      $todos = e.detail.items
+   } 
 </script>
 
 <section class="grid grid-rows-[1fr_auto]">
-	<ul bind:this={listContainer} class="overflow-y-auto">
+	<ul bind:this={listContainer} class="overflow-y-auto" use:dndzone={{items: $todos, flipDurationMs: 300}} on:consider={handleSort} on:finalize={handleSort}> 
 		{#if $todos.length === 0}
 			<p class="p-3 text-center text-fadedText-light">
 				Add todos using the input above.<br />Drag and drop to reorder list.<br />Swipe left to
