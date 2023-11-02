@@ -43,9 +43,6 @@
 	<ul
 		bind:this={listContainer}
 		class="overflow-y-auto"
-		use:dndzone={{ items: $todos, flipDurationMs: 300 }}
-		on:consider={handleSort}
-		on:finalize={handleSort}
 	>
 		{#if $todos.length === 0}
 			<p class="p-3 text-center text-fadedText-light">
@@ -61,7 +58,6 @@
 			<li
 				animate:flip={{ duration: 300 }}
 				transition:fly={{ y: -20, duration: 300 }}
-				draggable="true"
 				class="relative"
 			>
 				{#if todoIsVisible}

@@ -18,10 +18,12 @@
 		background: 'bg-purple-300'
 	};
 
-	let todoForm: HTMLFormElement;
-	$: if (todoForm) {
-		todoForm.style.translate = `-${$swipePositionX}px`;
+	let formElement: HTMLFormElement;
+	$: if (formElement) {
+		formElement.style.translate = `-${$swipePositionX}px`;
 	}
+   let submitButton: HTMLButtonElement;
+   $: buttonWidth = submitButton?.offsetWidth;
 
 	let initialCoordinates = {
 		x: 0,
@@ -59,8 +61,8 @@
 			return (swipingLeft = Math.abs(diffX) > Math.abs(diffY) && diffX > 0);
 		}
 
-		//Avoid swiping to the right after initially to the left
-		if (diffX < 0) {
+		//Avoid swiping to the right after initially to the left and further than delete button width
+		if (diffX < 0 || diffX > buttonWidth) {
 			return;
 		}
 
@@ -68,12 +70,16 @@
 	}
 
 	function endTouch() {
-		//todo: implement Logic for sticking left
-
 		initialCoordinates.x = 0;
 		initialCoordinates.y = 0;
 		swipingLeft = null;
-		swipePositionX.set(0);
+      if ($swipePositionX > buttonWidth / 2) {
+         //Make todo stick to the left
+         swipePositionX.set(buttonWidth)
+         submitButton.style.zIndex = "10"
+      } else {
+         swipePositionX.set(0);
+      }
 	}
 
 	//Drag & Drop Needed Event Listeners: dragstart,dragenter, dragleave, dragover, drop
@@ -83,7 +89,7 @@
 	method="post"
 	action="?/delete"
 	id={index.toString()}
-	bind:this={todoForm}
+	bind:this={formElement}
 	on:touchstart={startTouch}
 	on:touchmove|preventDefault={slideTodo}
 	on:touchend|preventDefault={endTouch}
@@ -95,7 +101,7 @@
 			await update();
 		};
 	}}
-	class="flex items-center flex-1 gap-3 px-5 py-4 hover:cursor-grab"
+	class="flex items-center flex-1 gap-3 px-5 py-4 bg-white hover:cursor-grab"
 >
 	<input
 		type="checkbox"
@@ -123,7 +129,8 @@
 <button
 	type="submit"
 	form={index.toString()}
-	class="absolute inset-0 left-auto px-3 bg-mainText-light"
+	class="absolute inset-0 left-auto px-3 shadow-inner bg-mainText-light -z-10"
+   bind:this={submitButton}
 >
 	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-close w-9"
 		><path

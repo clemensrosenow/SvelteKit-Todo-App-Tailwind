@@ -27,6 +27,6 @@
 <style lang="postcss">
 	:global(main > *) {
 		@apply rounded-md overflow-hidden shadow-lg mb-6;
-		background-color: white;
+		//background-color: white;
 	}
 </style>
