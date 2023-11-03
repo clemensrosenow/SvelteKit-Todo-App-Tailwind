@@ -22,20 +22,21 @@
 	$: if (formElement) {
 		formElement.style.translate = `-${$swipePositionX}px`;
 	}
-   let submitButton: HTMLButtonElement;
-   $: buttonWidth = submitButton?.offsetWidth;
+
+	let submitButton: HTMLButtonElement;
+	$: buttonWidth = submitButton?.offsetWidth;
 
 	let initialCoordinates = {
 		x: 0,
 		y: 0
 	};
 
-	let swipingLeft: boolean | null = null;
+	let swipingDirection: 'left' | 'right' | 'invalid' | null = null;
 
 	const swipePositionX = spring(0, {
-		stiffness: 0.05,
+		stiffness: 0.1,
 		damping: 0.3,
-		precision: 1
+		precision: 0.5
 	});
 
 	function startTouch(event: TouchEvent) {
@@ -44,7 +45,7 @@
 	}
 
 	function slideTodo(event: TouchEvent) {
-		if (!initialCoordinates.x || !initialCoordinates.y || swipingLeft === false) {
+		if (swipingDirection === 'invalid') {
 			return;
 		}
 
@@ -52,34 +53,56 @@
 			x: event.touches[0].clientX,
 			y: event.touches[0].clientY
 		};
+		const diffX = currentCoordinates.x - initialCoordinates.x;
+		const diffY = currentCoordinates.y - initialCoordinates.y;
 
-		const diffX = initialCoordinates.x - currentCoordinates.x;
-		const diffY = initialCoordinates.y - currentCoordinates.y;
+		// Set swiping direction
+		if (!swipingDirection) {
+			// Exclude Vertical Swiping
+			if (Math.abs(diffY) > Math.abs(diffX)) {
+				return (swipingDirection = 'invalid');
+			}
 
-		if (swipingLeft === null) {
-			// Boolean Expression checking if swiped horizontally & left
-			return (swipingLeft = Math.abs(diffX) > Math.abs(diffY) && diffX > 0);
+			//Assign swiping direction, taking initial state into account
+			if (diffX < 0 && $swipePositionX === 0) {
+				swipingDirection = 'left';
+			} else if (diffX > 0 && $swipePositionX === buttonWidth) {
+				swipingDirection = 'right';
+			} else {
+				return (swipingDirection = 'invalid');
+			}
 		}
 
-		//Avoid swiping to the right after initially to the left and further than delete button width
-		if (diffX < 0 || diffX > buttonWidth) {
-			return;
-		}
+		/*Update swipe transformation with 2 limits: 
+      1. No further back than starting position
+      2. Not further than width of delete button*/
+		switch (swipingDirection) {
+			case 'left':
+				if (-diffX < 0 || -diffX > buttonWidth) {
+					return;
+				}
+				return swipePositionX.set(-diffX);
 
-		return swipePositionX.set(diffX);
+			case 'right':
+				if (diffX < 0 || diffX > buttonWidth) {
+					return;
+				}
+				return swipePositionX.set(buttonWidth - diffX);
+		}
 	}
 
 	function endTouch() {
-		initialCoordinates.x = 0;
-		initialCoordinates.y = 0;
-		swipingLeft = null;
-      if ($swipePositionX > buttonWidth / 2) {
-         //Make todo stick to the left
-         swipePositionX.set(buttonWidth)
-         submitButton.style.zIndex = "10"
-      } else {
-         swipePositionX.set(0);
-      }
+      //Reset values
+		initialCoordinates = { x: 0, y: 0 };
+		swipingDirection = null;
+      
+      // Fully slide todo to one direction
+		if ($swipePositionX > buttonWidth / 2) {
+			//Make todo stick to the left
+			swipePositionX.set(buttonWidth);
+		} else {
+			swipePositionX.set(0);
+		}
 	}
 
 	//Drag & Drop Needed Event Listeners: dragstart,dragenter, dragleave, dragover, drop
@@ -101,7 +124,7 @@
 			await update();
 		};
 	}}
-	class="flex items-center flex-1 gap-3 px-5 py-4 bg-white hover:cursor-grab"
+	class="flex items-center flex-1 col-start-1 row-start-1 gap-3 px-5 py-4 bg-white hover:cursor-grab"
 >
 	<input
 		type="checkbox"
@@ -129,8 +152,8 @@
 <button
 	type="submit"
 	form={index.toString()}
-	class="absolute inset-0 left-auto px-3 shadow-inner bg-mainText-light -z-10"
-   bind:this={submitButton}
+	class="col-start-1 row-start-1 px-3 ml-auto shadow-inner bg-mainText-light"
+	bind:this={submitButton}
 >
 	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-close w-9"
 		><path

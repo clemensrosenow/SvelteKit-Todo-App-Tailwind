@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { dndzone } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
-	import { fly } from 'svelte/transition';
+	import { fly, slide } from 'svelte/transition';
+   import {cubicIn} from 'svelte/easing'
 	import { filterCriterion, filterOptions, todos } from '../stores';
 	import TodoItem from './TodoItem.svelte';
 	import TodoListFooter from './TodoListFooter.svelte';
@@ -42,7 +43,7 @@
 <section class="grid grid-rows-[1fr_auto]">
 	<ul
 		bind:this={listContainer}
-		class="overflow-y-auto"
+		class="overflow-y-auto bg-listBackground-light"
 	>
 		{#if $todos.length === 0}
 			<p class="p-3 text-center text-fadedText-light">
@@ -57,8 +58,9 @@
 				($filterCriterion === $filterOptions[2] && completed)}
 			<li
 				animate:flip={{ duration: 300 }}
-				transition:fly={{ y: -20, duration: 300 }}
-				class="relative"
+				in:fly={{ y: -20, duration: 300 }}
+            out:slide={{axis: "x", duration: 300, easing: cubicIn}}
+				class="grid grid-cols-1"
 			>
 				{#if todoIsVisible}
 					<TodoItem {task} bind:completed {id} {index} />
