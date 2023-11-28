@@ -95,7 +95,7 @@
 	}
 
 	:global(html) {
-		background-color: theme(colors.bodyBackground.dark);
+		//background-color: theme(colors.bodyBackground.dark);
 	}
 	:global(body) {
 		scroll-behavior: smooth;

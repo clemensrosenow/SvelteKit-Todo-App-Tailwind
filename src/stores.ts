@@ -22,7 +22,18 @@ function customTodoStore() {
 		},
 		delete: (todoId: string) => {
 			update(($todos) => $todos.filter((todo: Todo) => todo.id !== todoId));
-		},
+      },
+      swap: (draggedId: string, enteredId: string) => { 
+         update(($todos) => {
+            //Get indices based on id
+            const draggedIndex = $todos.findIndex((todo: Todo) => todo.id === draggedId);
+            const enteredIndex = $todos.findIndex((todo: Todo) => todo.id === enteredId);
+
+            //Swap todos
+            [$todos[draggedIndex], $todos[enteredIndex]] = [$todos[enteredIndex], $todos[draggedIndex]];
+            return $todos;
+         })
+      }
 		/*toggle: (todoId: string) => {
 			update(($todos) =>
 				$todos.map((todo: Todo) => {

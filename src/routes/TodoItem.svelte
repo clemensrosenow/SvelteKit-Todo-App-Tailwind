@@ -104,8 +104,6 @@
 			swipePositionX.set(0);
 		}
 	}
-
-	//Drag & Drop Needed Event Listeners: dragstart,dragenter, dragleave, dragover, drop
 </script>
 
 <form

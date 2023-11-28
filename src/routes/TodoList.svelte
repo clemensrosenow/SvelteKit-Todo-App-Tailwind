@@ -1,14 +1,12 @@
 <script lang="ts">
-	import { dndzone } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
+	import { cubicIn } from 'svelte/easing';
 	import { fly, slide } from 'svelte/transition';
-   import {cubicIn} from 'svelte/easing'
 	import { filterCriterion, filterOptions, todos } from '../stores';
 	import TodoItem from './TodoItem.svelte';
 	import TodoListFooter from './TodoListFooter.svelte';
 
-	let listContainer: HTMLUListElement;
-
+	/* Scroll after update
 	//Bug: Undefined at first, so scroll to top function is not triggered
 	//Bug: todos[0] is undefined after deleting all
 
@@ -35,15 +33,64 @@
       }
       return false;
    } */
-	function handleSort(e) {
-		$todos = e.detail.items;
+
+	let listContainer: HTMLUListElement;
+	let validTarget = false; //Necessary for dropzone highlighting
+	let highlightedItem: HTMLLIElement | HTMLUListElement | null = null; //Nessary for UI feedback & drop position
+
+	// ✅
+	function handleDragStart(event: DragEvent, index: number) {
+		if (!event.dataTransfer) return;
+		event.dataTransfer.effectAllowed = 'move';
+		event.dataTransfer.setData('text/plain', index.toString());
 	}
+
+	function getHighlightTarget(
+		listElement: HTMLLIElement,
+		clientY: number
+	): HTMLLIElement | HTMLUListElement {
+		const rect = listElement.getBoundingClientRect();
+		const centerY = rect.top + rect.height / 2;
+
+		if (clientY < centerY) {
+			const previousSibling = listElement.previousElementSibling as HTMLLIElement;
+			return previousSibling ?? listContainer; //Return ul element first list item with no previous sibling
+		}
+		return listElement;
+	}
+
+	function handleDrop(event: DragEvent) {
+		if (!event.dataTransfer) return;
+		const droppedIndex = parseInt(event.dataTransfer?.getData('text/plain'));
+      
+      //Bug: ul listContainer hat keinen Data-Index, daher hier immmer Abbruch, + 1 rechnen bei li bisher erfolglos
+      const dropTargetIndex = parseInt(highlightedItem?.getAttribute('data-index') ?? '-1');
+      if (dropTargetIndex === -1) return;
+		
+      updateTodoListOrder(droppedIndex, dropTargetIndex);
+
+      //Reset values
+      validTarget = false;
+      highlightedItem = null;
+	}
+
+   function updateTodoListOrder(fromIndex: number, toIndex: number) {
+      //console.log(fromIndex, toIndex)
+      const [droppedItem] = $todos.splice(fromIndex, 1);
+      $todos.splice(toIndex, 0, droppedItem);  
+      //Todo: Update MongoDB using API endpoint (extra attribute for order possibly needed)
+   }
 </script>
 
-<section class="grid grid-rows-[1fr_auto]">
+<section class="grid grid-rows-[1fr_auto] overflow-visible">
 	<ul
 		bind:this={listContainer}
-		class="overflow-y-auto bg-listBackground-light"
+		class="overflow-x-visible bg-listBackground-light"
+		class:validTarget
+		class:topHighlight={highlightedItem === listContainer}
+		on:dragover|preventDefault={() => (validTarget = true)}
+		on:dragleave={(e) => e.target === listContainer && (validTarget = false, highlightedItem = null)}
+		on:drop={handleDrop}
 	>
 		{#if $todos.length === 0}
 			<p class="p-3 text-center text-fadedText-light">
@@ -57,10 +104,17 @@
 				($filterCriterion === $filterOptions[1] && !completed) ||
 				($filterCriterion === $filterOptions[2] && completed)}
 			<li
+				draggable="true"
+				data-id={id}
+				data-index={index}
+				on:dragstart={(e) => handleDragStart(e, index)}
+				on:dragover|preventDefault={(e) =>
+					(highlightedItem = getHighlightTarget(e.currentTarget, e.clientY))}
 				animate:flip={{ duration: 300 }}
 				in:fly={{ y: -20, duration: 300 }}
-            out:slide={{axis: "x", duration: 300, easing: cubicIn}}
+				out:slide={{ axis: 'x', duration: 300, easing: cubicIn }}
 				class="grid grid-cols-1"
+				class:bottomHighlight={highlightedItem?.getAttribute('data-id') === id.toString()}
 			>
 				{#if todoIsVisible}
 					<TodoItem {task} bind:completed {id} {index} />
@@ -70,3 +124,18 @@
 	</ul>
 	<TodoListFooter />
 </section>
+
+<style lang="postcss">
+	.validTarget {
+		@apply outline-2 outline-dashed outline-brightBlue;
+	}
+
+	/*Kann noch vereinfacht werden*/
+	.topHighlight {
+		@apply border-t-4 border-brightBlue;
+	}
+
+	.bottomHighlight {
+		@apply border-b-4 border-brightBlue;
+	}
+</style>
