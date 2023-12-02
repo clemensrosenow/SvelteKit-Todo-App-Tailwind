@@ -65,7 +65,6 @@
       
       //Bug: ul listContainer hat keinen Data-Index, daher hier immmer Abbruch, + 1 rechnen bei li bisher erfolglos
       const dropTargetIndex = parseInt(highlightedItem?.getAttribute('data-index') ?? '-1');
-      if (dropTargetIndex === -1) return;
 		
       updateTodoListOrder(droppedIndex, dropTargetIndex);
 
@@ -75,9 +74,17 @@
 	}
 
    function updateTodoListOrder(fromIndex: number, toIndex: number) {
-      //console.log(fromIndex, toIndex)
+      if (fromIndex === toIndex) return;
+      if (fromIndex - 1 === toIndex) return;
+      
       const [droppedItem] = $todos.splice(fromIndex, 1);
-      $todos.splice(toIndex, 0, droppedItem);  
+      
+      if (toIndex === -1) {
+         $todos = [droppedItem, ...$todos];
+      } else {
+         $todos = $todos.toSpliced(toIndex, 0, droppedItem);  
+      }
+      
       //Todo: Update MongoDB using API endpoint (extra attribute for order possibly needed)
    }
 </script>
