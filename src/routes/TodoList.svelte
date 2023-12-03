@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount, onDestroy } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { cubicIn } from 'svelte/easing';
 	import { fly, slide } from 'svelte/transition';
@@ -38,7 +39,12 @@
 	let validTarget = false; //Necessary for dropzone highlighting
 	let highlightedItem: HTMLLIElement | HTMLUListElement | null = null; //Nessary for UI feedback & drop position
 
-	// ✅
+	let touchDevice = false;
+	onMount(() => {
+		touchDevice = 'ontouchstart' in window
+	});
+
+
 	function handleDragStart(event: DragEvent, index: number) {
 		if (!event.dataTransfer) return;
 		event.dataTransfer.effectAllowed = 'move';
@@ -62,41 +68,41 @@
 	function handleDrop(event: DragEvent) {
 		if (!event.dataTransfer) return;
 		const droppedIndex = parseInt(event.dataTransfer?.getData('text/plain'));
-      
-      //Bug: ul listContainer hat keinen Data-Index, daher hier immmer Abbruch, + 1 rechnen bei li bisher erfolglos
-      const dropTargetIndex = parseInt(highlightedItem?.getAttribute('data-index') ?? '-1');
-		
-      updateTodoListOrder(droppedIndex, dropTargetIndex);
+		const dropTargetIndex = parseInt(highlightedItem?.getAttribute('data-index') ?? '-1');
+		updateTodoListOrder(droppedIndex, dropTargetIndex + 1);
 
-      //Reset values
-      validTarget = false;
-      highlightedItem = null;
+		//Reset values
+		validTarget = false;
+		highlightedItem = null;
 	}
 
-   function updateTodoListOrder(fromIndex: number, toIndex: number) {
-      if (fromIndex === toIndex) return;
-      if (fromIndex - 1 === toIndex) return;
-      
-      const [droppedItem] = $todos.splice(fromIndex, 1);
-      
-      if (toIndex === -1) {
-         $todos = [droppedItem, ...$todos];
-      } else {
-         $todos = $todos.toSpliced(toIndex, 0, droppedItem);  
-      }
-      
-      //Todo: Update MongoDB using API endpoint (extra attribute for order possibly needed)
-   }
+	function updateTodoListOrder(fromIndex: number, toIndex: number) {
+		if (fromIndex === toIndex || fromIndex + 1 === toIndex) return; //No change needed when dropping exactly before or after
+
+		const [droppedItem] = $todos.splice(fromIndex, 1);
+
+		if (fromIndex < toIndex) {
+			toIndex--; //Compensate for splice
+		}
+
+		$todos = $todos.toSpliced(toIndex, 0, droppedItem);
+
+		//Todo: Update MongoDB using API endpoint (extra attribute for order possibly needed)
+	}
 </script>
 
-<section class="grid grid-rows-[1fr_auto] overflow-visible">
+<section class="grid grid-rows-[1fr_auto]">
 	<ul
 		bind:this={listContainer}
-		class="overflow-x-visible bg-listBackground-light"
+		class="overflow-x-visible bg-listBackground-light dark:bg-listBackground-dark"
 		class:validTarget
 		class:topHighlight={highlightedItem === listContainer}
-		on:dragover|preventDefault={() => (validTarget = true)}
-		on:dragleave={(e) => e.target === listContainer && (validTarget = false, highlightedItem = null)}
+		on:dragover|preventDefault={(e) => {
+			validTarget = true;
+			if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+		}}
+		on:dragleave={(e) =>
+			e.target === listContainer && ((validTarget = false), (highlightedItem = null))}
 		on:drop={handleDrop}
 	>
 		{#if $todos.length === 0}
@@ -120,11 +126,11 @@
 				animate:flip={{ duration: 300 }}
 				in:fly={{ y: -20, duration: 300 }}
 				out:slide={{ axis: 'x', duration: 300, easing: cubicIn }}
-				class="grid grid-cols-1"
+				class="grid grid-cols-1 hover:cursor-grab"
 				class:bottomHighlight={highlightedItem?.getAttribute('data-id') === id.toString()}
 			>
 				{#if todoIsVisible}
-					<TodoItem {task} bind:completed {id} {index} />
+					<TodoItem {task} bind:completed {id} {index} {touchDevice} />
 				{/if}
 			</li>
 		{/each}
@@ -134,15 +140,16 @@
 
 <style lang="postcss">
 	.validTarget {
-		@apply outline-2 outline-dashed outline-brightBlue;
+		@apply border-x-2 border-dashed border-brightBlue;
 	}
 
-	/*Kann noch vereinfacht werden*/
 	.topHighlight {
 		@apply border-t-4 border-brightBlue;
+      border-top-style: solid; 
 	}
 
 	.bottomHighlight {
 		@apply border-b-4 border-brightBlue;
 	}
+
 </style>

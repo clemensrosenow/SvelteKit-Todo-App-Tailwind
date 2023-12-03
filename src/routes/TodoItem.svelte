@@ -3,6 +3,7 @@
 	export let completed: boolean;
 	export let id: string;
 	export let index: number;
+   export let touchDevice: boolean;
 
 	import { enhance } from '$app/forms';
 	import { spring } from 'svelte/motion';
@@ -92,11 +93,11 @@
 	}
 
 	function endTouch() {
-      //Reset values
+		//Reset values
 		initialCoordinates = { x: 0, y: 0 };
 		swipingDirection = null;
-      
-      // Fully slide todo to one direction
+
+		// Fully slide todo to one direction
 		if ($swipePositionX > buttonWidth / 2) {
 			//Make todo stick to the left
 			swipePositionX.set(buttonWidth);
@@ -122,7 +123,7 @@
 			await update();
 		};
 	}}
-	class="flex items-center flex-1 col-start-1 row-start-1 gap-3 px-5 py-4 bg-white hover:cursor-grab"
+	class="flex items-center flex-1 col-start-1 row-start-1 gap-3 px-5 py-4 bg-white dark:bg-listBackground-dark"
 >
 	<input
 		type="checkbox"
@@ -138,18 +139,19 @@
 				}
 			});
 		}}
-		class="p-3 rounded-full border-lowContrast-light checked:text-brightBlue hover:cursor-pointer hover:border-brightBlue focus:outline-brightBlue"
+		class="p-3 rounded-full border-lowContrast-light checked:text-brightBlue hover:cursor-pointer hover:border-brightBlue focus:outline-brightBlue dark:bg-listBackground-dark dark:border-lowContrast-dark "
 	/>
-	<label for={id} class="flex-1 hover:cursor-grab">{task}</label>
+	<label for={id} class="flex-1 hover:cursor-grab dark:text-mainText-dark text-mainText-light">{task}</label>
 
 	<!--Delivers the id value for deleting the todo on the backend-->
 	<input type="hidden" hidden name="id" value={id} />
 </form>
 
-<!-- Button located outside of form to enable fixed absolute position -->
+<!-- Button located outside of form for absolute positioning -->
 <button
 	type="submit"
 	form={index.toString()}
+	style:z-index={touchDevice ? -1 : 10}
 	class="col-start-1 row-start-1 px-3 ml-auto shadow-inner bg-mainText-light"
 	bind:this={submitButton}
 >

@@ -33,7 +33,7 @@
 		};
 
 	}}
-	class="flex justify-between gap-2 py-1 pl-1 bg-listBackground-light"
+	class="flex justify-between gap-2 py-1 pl-1 bg-listBackground-light dark:bg-listBackground-dark "
 >
 	<!-- svelte-ignore a11y-autofocus -->
 	<input
@@ -45,7 +45,7 @@
 		required
 		disabled={creating}
 		bind:value={todoText}
-		class="flex-1 w-0 px-4 py-3 bg-transparent border-0 rounded-sm form-input text-mainText-light caret-brightBlue placeholder-fadedText-light disabled:contrast-50"
+		class="flex-1 w-0 px-4 py-3 bg-transparent border-0 rounded-sm form-input text-mainText-light caret-brightBlue placeholder-fadedText-light disabled:contrast-50 dark:text-mainText-dark dark:placeholder-fadedText-dark"
 	/>
 	<button type="submit" disabled={creating} class="pr-2 text-mainText-light disabled:contrast-50"
 		><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-add w-9"

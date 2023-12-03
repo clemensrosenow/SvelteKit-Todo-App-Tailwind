@@ -94,9 +94,7 @@
 		@apply max-w-4xl mx-auto px-6 w-full;
 	}
 
-	:global(html) {
-		//background-color: theme(colors.bodyBackground.dark);
-	}
+
 	:global(body) {
 		scroll-behavior: smooth;
 		height: 100vh;
