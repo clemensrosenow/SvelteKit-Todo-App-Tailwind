@@ -3,9 +3,12 @@
 	import { flip } from 'svelte/animate';
 	import { cubicIn } from 'svelte/easing';
 	import { fly, slide } from 'svelte/transition';
-	import { filterCriterion, filterOptions, todos } from '../stores';
+	import { filterOptions, todos } from '../stores';
 	import TodoItem from './TodoItem.svelte';
 	import TodoListFooter from './TodoListFooter.svelte';
+
+   import { page } from '$app/stores';
+   $: filterCriterion = $page.url.searchParams.get("filter")
 
 	/* Scroll after update
 	//Bug: Undefined at first, so scroll to top function is not triggered
@@ -43,6 +46,8 @@
 	onMount(() => {
 		touchDevice = 'ontouchstart' in window
 	});
+   
+   
 
 
 	function handleDragStart(event: DragEvent, index: number) {
@@ -88,6 +93,7 @@
 		$todos = $todos.toSpliced(toIndex, 0, droppedItem);
 
 		//Todo: Update MongoDB using API endpoint (extra attribute for order possibly needed)
+      //Seperate document with id array for ordering
 	}
 </script>
 
@@ -113,9 +119,9 @@
 		{/if}
 		{#each $todos as { task, completed, id }, index (id)}
 			{@const todoIsVisible =
-				$filterCriterion === $filterOptions[0] ||
-				($filterCriterion === $filterOptions[1] && !completed) ||
-				($filterCriterion === $filterOptions[2] && completed)}
+				filterCriterion === $filterOptions[0] ||
+				(filterCriterion === $filterOptions[1] && !completed) ||
+				(filterCriterion === $filterOptions[2] && completed)}
 			<li
 				draggable="true"
 				data-id={id}

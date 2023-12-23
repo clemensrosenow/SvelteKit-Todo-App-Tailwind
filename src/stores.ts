@@ -29,23 +29,11 @@ function customTodoStore() {
             const draggedIndex = $todos.findIndex((todo: Todo) => todo.id === draggedId);
             const enteredIndex = $todos.findIndex((todo: Todo) => todo.id === enteredId);
 
-            //Swap todos
+            //Swap todos in place
             [$todos[draggedIndex], $todos[enteredIndex]] = [$todos[enteredIndex], $todos[draggedIndex]];
             return $todos;
          })
       }
-		/*toggle: (todoId: string) => {
-			update(($todos) =>
-				$todos.map((todo: Todo) => {
-               if (todo.id === todoId) {
-                  console.log("Todo store value: ", todo.completed)
-                  console.log("New store value", !todo.completed)
-						return { ...todo, completed: !todo.completed };
-					}
-					return todo;
-				})
-			);
-		}*/
 	};
 }
 
@@ -55,18 +43,4 @@ export const remainingTodos = derived(
 	($todos) => $todos.filter((todo: Todo) => !todo.completed).length
 );
 export const darkMode = writable(false);
-const filters = ['All', 'Active', 'Completed'];
-export const filterOptions = readable(filters);
-export const filterCriterion = writable(filters[0]);
-
-/*export const displayedTodos = derived([todos, filterCriterion], ([$todos, $filterCriterion]) => {
-	switch ($filterCriterion) {
-		case 'Active':
-			return $todos.filter((todo: Todo) => !todo.completed);
-		case 'Completed':
-			return $todos.filter((todo: Todo) => todo.completed);
-		case 'All':
-		default:
-			return $todos;
-	}
-});*/
+export const filterOptions = readable(['All', 'Active', 'Completed']);
